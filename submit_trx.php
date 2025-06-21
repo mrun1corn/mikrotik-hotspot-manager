@@ -5,18 +5,20 @@ $ip = $_POST['ip'] ?? '';
 $package = $_POST['package'] ?? 'unknown';
 
 if ($bkash_number && $trx_id && $ip && $package) {
-    $botToken = "";
-    $adminChatId = "";
+    $botToken = "";      
+    $adminChatId = "";   
 
-    $message = "ðŸ†• *New Payment Request:*\n\n"
-             . "ðŸ“± *bKash:* `$bkash_number`\n"
-             . "ðŸ§¾ *Transaction ID:* `$trx_id`\n"
-             . "ðŸŒ *IP:* `$ip`\n"
-             . "ðŸ“¦ *Package:* *" . strtoupper(str_replace("_", " ", $package)) . "*";
+    $safe_package = strtoupper(str_replace("_", " ", $package));
+    $message = "📬 *New Payment Request:*\n\n"
+             . "📱 *bKash:* `" . addslashes($bkash_number) . "`\n"
+             . "🧾 *Transaction ID:* `" . addslashes($trx_id) . "`\n"
+             . "🌐 *IP:* `" . addslashes($ip) . "`\n"
+             . "📦 *Package:* *" . addslashes($safe_package) . "*";
 
+    // Inline keyboard with callback data
     $inlineKeyboard = [
         'inline_keyboard' => [[
-            ['text' => 'âœ… Approve', 'callback_data' => "approve|$bkash_number|$trx_id|$ip|$package"]
+            ['text' => '✅ Approve', 'callback_data' => "approve|$bkash_number|$trx_id|$ip|$package"]
         ]]
     ];
 
@@ -28,6 +30,7 @@ if ($bkash_number && $trx_id && $ip && $package) {
         'reply_markup' => json_encode($inlineKeyboard)
     ];
 
+    // Send message to admin
     file_get_contents($url . "?" . http_build_query($data));
 
     echo "<script>
