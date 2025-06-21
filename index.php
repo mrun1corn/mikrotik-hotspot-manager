@@ -6,12 +6,14 @@ use RouterOS\Query;
 
 session_start();
 
-$mikrotikConfig = [
-    'host' => '',
-    'user' => '',
-    'pass' => '',
-    'port' => ,
-];
+$config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+
+//import creds from config
+$mikrotikConfig = $config['mikrotik'];
+$mikrotikConfig['host'];
+$mikrotikConfig['user'];
+$mikrotikConfig['pass'];
+$mikrotikConfig['port'];
 
 $error = '';
 $userInfo = null;

@@ -4,14 +4,19 @@ import datetime
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, ContextTypes
 from routeros_api import RouterOsApiPool
+import json
 
-API_TOKEN = ""
-ADMIN_CHAT_ID = 
+with open("config.json", "r") as f:
+    config = json.load(f)
 
-MIKROTIK_IP = ""
-MIKROTIK_USER = ""
-MIKROTIK_PASS = ""
-MIKROTIK_API_PORT = 
+API_TOKEN = config["telegram"]["bot_token"]
+ADMIN_CHAT_ID = config["telegram"]["admin_chat_id"]
+
+MIKROTIK_IP = config["mikrotik"]["host"]
+MIKROTIK_USER = config["mikrotik"]["user"]
+MIKROTIK_PASS = config["mikrotik"]["pass"]
+MIKROTIK_API_PORT = config["mikrotik"]["port"]
+
 
 
 def get_expiry(package):

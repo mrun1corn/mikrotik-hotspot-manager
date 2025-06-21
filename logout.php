@@ -1,17 +1,18 @@
 <?php
 require_once __DIR__ . '/vendor/autoload.php';
+$config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
 
 use RouterOS\Client;
 use RouterOS\Query;
 
 session_start();
 
-$mikrotikConfig = [
-    'host' => '',
-    'user' => '',
-    'pass' => '',
-    'port' => ,
-];
+$mikrotikConfig = $config['mikrotik'];
+$mikrotikConfig['host'];
+$mikrotikConfig['user'];
+$mikrotikConfig['pass'];
+$mikrotikConfig['port'];    
+
 
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
     if (!empty($_SESSION['username'])) {
@@ -26,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
                 $client->query($remove);
             }
         } catch (Exception $e) {
-            // Optional: Log error if needed
         }
     }
     session_destroy();

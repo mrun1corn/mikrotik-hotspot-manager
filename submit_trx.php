@@ -3,10 +3,12 @@ $bkash_number = $_POST['bkash_number'] ?? '';
 $trx_id = $_POST['trx_id'] ?? '';
 $ip = $_POST['ip'] ?? '';
 $package = $_POST['package'] ?? 'unknown';
+//import creds from config
+$config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+$botToken = $config['telegram']['bot_token'];
+$chatId = $config['telegram']['admin_chat_id'];
 
 if ($bkash_number && $trx_id && $ip && $package) {
-    $botToken = "";      
-    $adminChatId = "";   
 
     $safe_package = strtoupper(str_replace("_", " ", $package));
     $message = "📬 *New Payment Request:*\n\n"

@@ -1,0 +1,12 @@
+{
+  "mikrotik": {
+    "host": "",
+    "user": "",
+    "pass": "",
+    "port": 
+  },
+  "telegram": {
+    "bot_token": "",
+    "admin_chat_id":
+  }
+}
