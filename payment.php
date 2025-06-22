@@ -1,8 +1,14 @@
 <?php
-// Detect user's IP address
-$user_ip = $_SERVER['REMOTE_ADDR'];
-?>
+// Set UTF-8 headers
+header('Content-Type: text/html; charset=UTF-8');
 
+// Set time zone
+date_default_timezone_set('Asia/Dhaka');
+
+// Detect user's IP address (for reference, not enforced)
+$user_ip = $_SERVER['REMOTE_ADDR'];
+error_log("Detected IP in payment.php: $user_ip");
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,7 +32,7 @@ $user_ip = $_SERVER['REMOTE_ADDR'];
       padding: 20px;
     }
     form {
-      background: rgba(255 255 255 / 0.08);
+      background: rgba(255, 255, 255, 0.08);
       padding: 30px 40px;
       border-radius: 15px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
@@ -53,7 +59,7 @@ $user_ip = $_SERVER['REMOTE_ADDR'];
       color: rgba(255,255,255,0.7);
       font-size: 1.1rem;
     }
-    input[type="text"] {
+    input[type="text"], input[type="file"] {
       width: 100%;
       padding: 12px 15px 12px 42px;
       border-radius: 8px;
@@ -62,13 +68,11 @@ $user_ip = $_SERVER['REMOTE_ADDR'];
       background: rgba(255,255,255,0.3);
       color: #fff;
     }
-    input[type="text"]:focus {
+    input[type="text"]:focus, input[type="file"]:focus {
       background: rgba(255,255,255,0.6);
       outline: none;
       color: #333;
     }
-
-    /* Card-style packages */
     .packages {
       display: flex;
       gap: 15px;
@@ -94,7 +98,6 @@ $user_ip = $_SERVER['REMOTE_ADDR'];
     .package input {
       display: none;
     }
-
     input[type="submit"] {
       width: 100%;
       padding: 12px 15px;
@@ -118,8 +121,8 @@ $user_ip = $_SERVER['REMOTE_ADDR'];
 </head>
 <body>
   <div class="container">
-    <form action="submit_trx.php" method="post">
-      <h1>Login & Payment</h1>
+    <form action="submit_trx.php" method="post" enctype="multipart/form-data">
+      <h1><i class="fa-solid fa-wifi"></i> Login & Payment</h1>
 
       <!-- Package Selection -->
       <label>Select a Package:</label>
@@ -127,17 +130,17 @@ $user_ip = $_SERVER['REMOTE_ADDR'];
         <label class="package">
           <input type="radio" name="package" value="1_day" required />
           <strong>1 Day</strong><br>
-          à§³10
+          ৳10
         </label>
         <label class="package">
           <input type="radio" name="package" value="7_days" />
           <strong>7 Days</strong><br>
-          à§³30
+          ৳30
         </label>
         <label class="package">
           <input type="radio" name="package" value="30_days" />
           <strong>30 Days</strong><br>
-          à§³100
+          ৳100
         </label>
       </div>
 
@@ -148,19 +151,15 @@ $user_ip = $_SERVER['REMOTE_ADDR'];
         <input type="text" id="bkash_number" name="bkash_number" placeholder="Enter your bKash number" required pattern="\d{11}" title="Enter 11-digit bKash number" />
       </div>
 
-      <!-- Transaction ID -->
-      <label for="trx_id">Transaction ID</label>
+      <!-- Proof of Payment -->
+      <label for="proof_image">Proof of Payment (Image)</label>
       <div class="input-group">
-        <i class="fa-solid fa-receipt"></i>
-        <input type="text" id="trx_id" name="trx_id" placeholder="Enter Transaction ID" required />
+        <i class="fa-solid fa-image"></i>
+        <input type="file" id="proof_image" name="proof_image" accept="image/*" required />
       </div>
 
-      <!-- IP (auto-filled) -->
-      <label for="ip">Your IP Address</label>
-      <div class="input-group">
-        <i class="fa-solid fa-network-wired"></i>
-        <input type="text" id="ip" name="ip" value="<?= htmlspecialchars($user_ip) ?>" readonly />
-      </div>
+      <!-- IP (hidden) -->
+      <input type="hidden" name="ip" value="<?= htmlspecialchars($user_ip) ?>" />
 
       <input type="submit" value="Submit Payment" />
     </form>

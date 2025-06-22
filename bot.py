@@ -47,43 +47,43 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     try:
-        # Expected format: approve|bkash|trx|ip|package
+        # Expected format: approve|bkash|username|ip|package
         data = query.data.split('|')
         if len(data) != 5:
             error_msg = "❌ Invalid approval data format."
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             return
 
-        _, bkash, trx_id, ip, package = data
-        json_file = os.path.join(PENDING_DIR, f"{trx_id}.json")
+        _, bkash, username, ip, package = data
+        json_file = os.path.join(PENDING_DIR, f"{username}.json")
 
         # Step 1: Load user data from file
         if not os.path.exists(json_file):
-            error_msg = f"❌ No pending user found for transaction ID: {trx_id}"
+            error_msg = f"❌ No pending user found for username: {username}"
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             return
 
         with open(json_file, 'r') as f:
             user_data = json.load(f)
 
-        username = user_data["username"]
+        file_username = user_data["username"]
         password = str(user_data["password"])  # Ensure string
         file_ip = user_data["ip"]
         file_package = user_data["package"]
 
         # Verify input data matches file
-        if ip != file_ip or package.lower() != file_package.lower():
-            error_msg = f"❌ Mismatch in user data: IP ({ip} vs {file_ip}) or Package ({package} vs {file_package})"
+        if ip != file_ip or package.lower() != file_package.lower() or username != file_username:
+            error_msg = f"❌ Mismatch in user data: Username ({username} vs {file_username}), IP ({ip} vs {file_ip}) or Package ({package} vs {file_package})"
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             return
 
         # Step 2: Connect to MikroTik
@@ -109,7 +109,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             api_pool.disconnect()
             return
 
@@ -120,7 +120,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             api_pool.disconnect()
             return
 
@@ -130,7 +130,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             api_pool.disconnect()
             return
 
@@ -146,7 +146,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             api_pool.disconnect()
             return
 
@@ -185,7 +185,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             api_pool.disconnect()
             return
 
@@ -213,7 +213,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             api_pool.disconnect()
             return
 
@@ -227,7 +227,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 **{
                     "id": user_id,
                     "disabled": "false",
-                    "comment": f"{bkash} | {trx_id} | {display_expiry} | scheduler={scheduler_id}"
+                    "comment": f"{bkash} | {display_expiry} | scheduler={scheduler_id}"
                 }
             )
         except Exception as e:
@@ -245,7 +245,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
             api_pool.disconnect()
             return
 
@@ -267,7 +267,7 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(f"User {username} approved successfully")
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: User {username} approved successfully\n")
-            await query.edit_message_text(success_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=success_msg, parse_mode="Markdown")
         else:
             # Cleanup script and scheduler if verification fails
             try:
@@ -283,14 +283,74 @@ async def approve_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print(error_msg)
             with open("error_log.txt", "a") as f:
                 f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-            await query.edit_message_text(error_msg, parse_mode="Markdown")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
 
     except Exception as e:
         error_msg = f"❌ Error approving user: {str(e)}"
         print(error_msg)
         with open("error_log.txt", "a") as f:
             f.write(f"{datetime.datetime.now()}: {error_msg}\n")
-        await query.edit_message_text(error_msg, parse_mode="Markdown")
+        await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
+
+async def reject_inline(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+
+    try:
+        # Expected format: reject|bkash|username|ip|package
+        data = query.data.split('|')
+        if len(data) != 5:
+            error_msg = "❌ Invalid reject data format."
+            print(error_msg)
+            with open("error_log.txt", "a") as f:
+                f.write(f"{datetime.datetime.now()}: {error_msg}\n")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
+            return
+
+        _, bkash, username, ip, package = data
+        json_file = os.path.join(PENDING_DIR, f"{username}.json")
+
+        # Check if pending user exists
+        if not os.path.exists(json_file):
+            error_msg = f"❌ No pending user found for username: {username}"
+            print(error_msg)
+            with open("error_log.txt", "a") as f:
+                f.write(f"{datetime.datetime.now()}: {error_msg}\n")
+            await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
+            return
+
+        # Connect to MikroTik
+        api_pool = RouterOsApiPool(
+            MIKROTIK_IP,
+            username=MIKROTIK_USER,
+            password=MIKROTIK_PASS,
+            port=MIKROTIK_API_PORT,
+            plaintext_login=True
+        )
+        api = api_pool.get_api()
+        user_resource = api.get_resource("/ip/hotspot/user")
+
+        # Delete user from MikroTik
+        users = user_resource.get(name=username)
+        if users:
+            user_resource.remove(id=users[0].get("id"))
+
+        # Delete pending file
+        os.remove(json_file)
+        api_pool.disconnect()
+
+        success_msg = f"❌ *User Rejected!*\n\n👤 *Username:* `{username}`\n🌐 *IP:* `{ip}`\n📦 *Package:* `{package}`"
+        print(f"User {username} rejected successfully")
+        with open("error_log.txt", "a") as f:
+            f.write(f"{datetime.datetime.now()}: User {username} rejected successfully\n")
+        await query.edit_message_caption(caption=success_msg, parse_mode="Markdown")
+
+    except Exception as e:
+        error_msg = f"❌ Error rejecting user: {str(e)}"
+        print(error_msg)
+        with open("error_log.txt", "a") as f:
+            f.write(f"{datetime.datetime.now()}: {error_msg}\n")
+        await query.edit_message_caption(caption=error_msg, parse_mode="Markdown")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -399,6 +459,7 @@ def main():
     app = ApplicationBuilder().token(API_TOKEN).build()
 
     app.add_handler(CallbackQueryHandler(approve_inline, pattern="^approve\\|"))
+    app.add_handler(CallbackQueryHandler(reject_inline, pattern="^reject\\|"))
     app.add_handler(CommandHandler("activeusers", active_users))
     app.add_handler(CommandHandler("usage", usage))
     app.add_handler(CommandHandler("help", help_command))
