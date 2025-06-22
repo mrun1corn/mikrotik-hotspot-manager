@@ -8,5 +8,6 @@
   "telegram": {
     "bot_token": "",
     "admin_chat_id":
-  }
+  },
+  "bkash_number": ""
 }

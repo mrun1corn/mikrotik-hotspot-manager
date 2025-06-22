@@ -5,6 +5,10 @@ header('Content-Type: text/html; charset=UTF-8');
 // Set time zone
 date_default_timezone_set('Asia/Dhaka');
 
+// Load config
+$config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
+$receiver_bkash_number = $config['bkash_number'] ?? 'N/A';
+
 // Detect user's IP address (for reference, not enforced)
 $user_ip = $_SERVER['REMOTE_ADDR'];
 error_log("Detected IP in payment.php: $user_ip");
@@ -114,6 +118,13 @@ error_log("Detected IP in payment.php: $user_ip");
       color: #5a67d8;
       border-color: #5a67d8;
     }
+    .receiver-info {
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #ffd700; /* Gold color for emphasis */
+    }
     @media (max-width: 480px) {
       form { padding: 20px; }
     }
@@ -144,8 +155,14 @@ error_log("Detected IP in payment.php: $user_ip");
         </label>
       </div>
 
-      <!-- bKash Number -->
-      <label for="bkash_number">bKash Number</label>
+      <!-- Receiver bKash Number -->
+      <div class="receiver-info">
+        <i class="fa-solid fa-money-bill-wave mr-2"></i>
+        Send to this number: <?= htmlspecialchars($receiver_bkash_number) ?>
+      </div>
+
+      <!-- User's bKash Number -->
+      <label for="bkash_number">Your bKash Number</label>
       <div class="input-group">
         <i class="fa-solid fa-phone"></i>
         <input type="text" id="bkash_number" name="bkash_number" placeholder="Enter your bKash number" required pattern="\d{11}" title="Enter 11-digit bKash number" />
