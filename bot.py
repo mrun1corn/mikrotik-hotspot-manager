@@ -439,6 +439,7 @@ async def usage(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def startup_notify(app):
     try:
+        # Attempt to connect and perform a simple API call
         api_pool = RouterOsApiPool(
             MIKROTIK_IP,
             username=MIKROTIK_USER,
@@ -446,10 +447,24 @@ async def startup_notify(app):
             port=MIKROTIK_API_PORT,
             plaintext_login=True
         )
+        api = api_pool.get_api()
+        # Test connection by querying system identity
+        identity = api.get_resource('/system/identity').get()
         api_pool.disconnect()
-        await app.bot.send_message(chat_id=ADMIN_CHAT_ID, text="✅ Bot is running and connected to MikroTik.")
+
+        if identity:
+            await app.bot.send_message(
+                chat_id=ADMIN_CHAT_ID,
+                text="✅ Bot is running and connected to MikroTik."
+            )
+            print("Bot started and connected to MikroTik successfully")
+            with open("error_log.txt", "a") as f:
+                f.write(f"{datetime.datetime.now()}: Bot started and connected to MikroTik successfully\n")
+        else:
+            raise Exception("No identity data returned from MikroTik")
+
     except Exception as e:
-        error_msg = f"⚠️ Startup failed: {str(e)}"
+        error_msg = f"⚠️ Bot is running but failed to connect to MikroTik: {str(e)}"
         print(error_msg)
         with open("error_log.txt", "a") as f:
             f.write(f"{datetime.datetime.now()}: {error_msg}\n")
