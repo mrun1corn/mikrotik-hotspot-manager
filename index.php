@@ -8,7 +8,7 @@ session_start();
 
 $config = json_decode(file_get_contents(__DIR__ . '/config.json'), true);
 
-//import creds from config
+// Import creds from config
 $mikrotikConfig = $config['mikrotik'];
 $mikrotikConfig['host'];
 $mikrotikConfig['user'];
@@ -121,7 +121,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Hotspot Login & Status</title>
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <!-- Font Awesome CDN with fallback -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <style>
     * { box-sizing: border-box; }
     body, html {
@@ -201,7 +202,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       background: transparent;
       color: #5a67d8;
       border: 2px solid #5a67d8;
-      text-color: white;
     }
     .btn-buy {
       background: #f56565;
@@ -269,14 +269,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <?php if ($userInfo): ?>
       <div class="status-box">
-        <p><strong>ðŸ‘¤ Username:</strong> <?= htmlspecialchars($userInfo['username']) ?></p>
-        <p><strong>ðŸ“¦ Package:</strong> <?= htmlspecialchars($userInfo['profile']) ?></p>
-        <p><strong>ðŸ“¶ IP:</strong> <?= htmlspecialchars($userInfo['ip']) ?></p>
-        <p><strong>ðŸ”— MAC:</strong> <?= htmlspecialchars($userInfo['mac']) ?></p>
-        <p><strong>â±ï¸ Uptime:</strong> <?= htmlspecialchars($userInfo['uptime']) ?></p>
-        <p><strong>â¬†ï¸ Upload:</strong> <?= htmlspecialchars($userInfo['upload']) ?></p>
-        <p><strong>â¬‡ï¸ Download:</strong> <?= htmlspecialchars($userInfo['download']) ?></p>
-        <p><strong>â³ Remaining:</strong> <?= htmlspecialchars($userInfo['remaining_time']) ?></p>
+        <p><i class="fa-solid fa-user"></i> <strong>Username:</strong> <?= htmlspecialchars($userInfo['username']) ?></p>
+        <p><i class="fa-solid fa-box"></i> <strong>Package:</strong> <?= htmlspecialchars($userInfo['profile']) ?></p>
+        <p><i class="fa-solid fa-network-wired"></i> <strong>IP:</strong> <?= htmlspecialchars($userInfo['ip']) ?></p>
+        <p><i class="fa-solid fa-ethernet"></i> <strong>MAC:</strong> <?= htmlspecialchars($userInfo['mac']) ?></p>
+        <p><i class="fa-solid fa-clock"></i> <strong>Uptime:</strong> <?= htmlspecialchars($userInfo['uptime']) ?></p>
+        <p><i class="fa-solid fa-upload"></i> <strong>Upload:</strong> <?= htmlspecialchars($userInfo['upload']) ?></p>
+        <p><i class="fa-solid fa-download"></i> <strong>Download:</strong> <?= htmlspecialchars($userInfo['download']) ?></p>
+        <p><i class="fa-solid fa-hourglass"></i> <strong>Remaining:</strong> <?= htmlspecialchars($userInfo['remaining_time']) ?></p>
       </div>
       <div class="button-group">
         <a class="btn btn-buy" href="payment.php" aria-label="Buy more time"><i class="fa-solid fa-cart-shopping"></i> Buy More Time</a>
@@ -293,7 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <input type="password" name="password" placeholder="Password" required />
         </div>
         <div class="button-group">
-          <button class="btn btn-login" type="submit">Login</button>
+          <button class="btn btn-login" type="submit"><i class="fa-solid fa-sign-in-alt"></i> Login</button>
           <a class="btn btn-buy" href="payment.php"><i class="fa-solid fa-cart-shopping"></i> Buy Package</a>
         </div>
       </form>
