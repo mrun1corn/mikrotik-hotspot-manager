@@ -5,40 +5,421 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register for Hotspot Access</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
-        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); max-width: 500px; margin: auto; }
-        h2 { text-align: center; color: #333; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; }
-        input[type="text"], input[type="file"], select { width: calc(100% - 22px); padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; }
-        button { background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
-        button:hover { background-color: #0056b3; }
-        .message { text-align: center; margin-top: 20px; font-weight: bold; }
-        .error { color: red; }
-        .success { color: green; }
+        /* CSS Variables for Theme */
+        :root {
+            --bg-color: #f4f7fa;
+            --text-color: #2d3748;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --success-color: #22c55e;
+            --success-hover: #16a34a;
+            --error-color: #ef4444;
+            --input-bg: #f9fafb;
+            --input-border: #d1d5db;
+            --link-color: #3b82f6;
+            --link-hover: #2563eb;
+            --gradient-start-light: #dbeafe;
+            --gradient-end-light: #bfdbfe;
+            --gradient-start-dark: #1f2937;
+            --gradient-end-dark: #374151;
+        }
+
+        body.dark-mode {
+            --bg-color: #1f2937;
+            --text-color: #d1d5db;
+            --card-bg: #374151;
+            --border-color: #4b5563;
+            --primary-color: #60a5fa;
+            --primary-hover: #3b82f6;
+            --success-color: #4ade80;
+            --success-hover: #22c55e;
+            --error-color: #f87171;
+            --input-bg: #4b5563;
+            --input-border: #6b7280;
+            --link-color: #60a5fa;
+            --link-hover: #3b82f6;
+        }
+
+        /* General Body Styling */
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--bg-color);
+            background-image: linear-gradient(135deg, var(--gradient-start-light), var(--gradient-end-light));
+            color: var(--text-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        body.dark-mode {
+            background-image: linear-gradient(135deg, var(--gradient-start-dark), var(--gradient-end-dark));
+        }
+
+        /* Container Styling */
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            max-width: 480px;
+            width: 100%;
+            text-align: center;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Logo/Icon Styling */
+        .logo {
+            margin-bottom: 24px;
+        }
+
+        .wifi-icon {
+            font-size: 64px;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            display: inline-block;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+        }
+
+        /* Heading Styling */
+        h2 {
+            color: var(--primary-color);
+            margin-bottom: 28px;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+        }
+
+        /* Form Styling */
+        form {
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 14px;
+        }
+
+        /* Input and Select Styling */
+        input[type="text"],
+        input[type="file"],
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input[type="text"]:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 18px;
+        }
+
+        body.dark-mode select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d1d5db'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+        }
+
+        input[type="file"] {
+            padding: 10px 16px;
+        }
+
+        input[type="file"]::-webkit-file-upload-button,
+        input[type="file"]::file-selector-button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="file"]::-webkit-file-upload-button:hover,
+        input[type="file"]::file-selector-button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Button Styling */
+        button[type="submit"] {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 14px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            position: relative;
+        }
+
+        button[type="submit"]:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        button[type="submit"]:disabled {
+            background-color: #94a3b8;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        button[type="submit"].loading .spinner {
+            display: inline-block;
+        }
+
+        /* Message Styling */
+        .message {
+            text-align: center;
+            margin: 20px 0;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .error {
+            color: var(--error-color);
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error-color);
+        }
+
+        .success {
+            color: var(--success-color);
+            background-color: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success-color);
+        }
+
+        /* Theme Toggle Button */
+        .theme-toggle {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 22px;
+            color: var(--text-color);
+            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        /* Footer Copyright */
+        .footer-copyright {
+            margin-top: 28px;
+            font-size: 13px;
+            color: var(--text-color);
+            opacity: 0.7;
+        }
+
+        /* Icon Styling (Using SVG as mask-image) */
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            background-color: var(--text-color);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            -webkit-mask-position: center;
+            mask-position: center;
+        }
+
+        .icon-phone {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.02l-2.2 2.2z'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.02l-2.2 2.2z'/%3E%3C/svg%3E");
+        }
+
+        .icon-box {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 7h-4V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5zm2 11.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 9.5 12 9.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 7h-4V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5zm2 11.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 9.5 12 9.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/%3E%3C/svg%3E");
+        }
+
+        .icon-camera {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm7-12H5c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V6.5c0-1.66-1.34-3-3-3zm-1.5 1c.83 0 1.5.67 1.5 1.5S18.33 7 17.5 7 16 6.33 16 5.5s.67-1.5 1.5-1.5z'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm7-12H5c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V6.5c0-1.66-1.34-3-3-3zm-1.5 1c.83 0 1.5.67 1.5 1.5S18.33 7 17.5 7 16 6.33 16 5.5s.67-1.5 1.5-1.5z'/%3E%3C/svg%3E");
+        }
+
+        .icon-paper-plane {
+            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/%3E%3C/svg%3E");
+            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/%3E%3C/svg%3E");
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            .container {
+                padding: 24px;
+                border-radius: 10px;
+            }
+            h2 {
+                font-size: 26px;
+            }
+            .theme-toggle {
+                top: 12px;
+                right: 12px;
+                width: 40px;
+                height: 40px;
+                font-size: 20px;
+            }
+        }
     </style>
 </head>
-<body>
+<body class="font-sans">
+    <div class="theme-toggle" id="themeToggle">💡</div>
+
     <div class="container">
+        <div class="logo">
+            <div class="wifi-icon">📶</div>
+        </div>
         <h2>Register for Hotspot Access</h2>
+
         {% if message %}
             <p class="message {{ message_type }}">{{ message }}</p>
         {% endif %}
-        <form action="/register" method="post" enctype="multipart/form-data">
-            <label for="phone">Phone Number:</label>
-            <input type="text" id="phone" name="phone" placeholder="e.g., 01712345678" required>
 
-            <label for="package">Select Package:</label>
-            <select id="package" name="package" required>
-                <option value="">-- Select a package --</option>
-                <option value="15_days_40_tk">15 days - 40 TK</option>
-                <option value="30_days_100_tk">30 days - 100 TK</option>
-            </select>
+        <form action="/register" method="post" enctype="multipart/form-data" id="registerForm">
+            <div>
+                <label for="phone"><span class="icon icon-phone"></span>Phone Number</label>
+                <input type="text" id="phone" name="phone" placeholder="e.g., 01712345678" required>
+            </div>
 
-            <label for="screenshot">Payment Screenshot:</label>
-            <input type="file" id="screenshot" name="screenshot" accept="image/*" required>
+            <div>
+                <label for="package"><span class="icon icon-box"></span>Select Package</label>
+                <select id="package" name="package" required>
+                    <option value="" disabled selected>-- Select a package --</option>
+                    <option value="15_days_40_tk">15 days - 40 TK</option>
+                    <option value="30_days_100_tk">30 days - 100 TK</option>
+                </select>
+            </div>
 
-            <button type="submit">Submit Registration</button>
+            <div>
+                <label for="screenshot"><span class="icon icon-camera"></span>Payment Screenshot</label>
+                <input type="file" id="screenshot" name="screenshot" accept="image/*" required>
+            </div>
+
+            <button type="submit" id="submitButton">
+                <span class="icon icon-paper-plane"></span>
+                <span>Submit Registration</span>
+                <span class="spinner"></span>
+            </button>
         </form>
+
+        <div class="footer-copyright">
+            Copyright &copy; mrun1corn
+        </div>
     </div>
+
+    <script type="text/javascript">
+        const themeToggle = document.getElementById('themeToggle');
+        const bodyElement = document.body;
+        const form = document.getElementById('registerForm');
+        const submitButton = document.getElementById('submitButton');
+
+        // Theme toggle logic
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            bodyElement.classList.add(savedTheme);
+            themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '💡';
+        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            bodyElement.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (bodyElement.classList.contains('dark-mode')) {
+                bodyElement.classList.remove('dark-mode');
+                localStorage.setItem('theme', 'light-mode');
+                themeToggle.textContent = '💡';
+            } else {
+                bodyElement.classList.add('dark-mode');
+                localStorage.setItem('theme', 'dark-mode');
+                themeToggle.textContent = '☀️';
+            }
+        });
+
+        // Form submission loading state
+        form.addEventListener('submit', () => {
+            submitButton.disabled = true;
+            submitButton.classList.add('loading');
+        });
+    </script>
 </body>
 </html>
