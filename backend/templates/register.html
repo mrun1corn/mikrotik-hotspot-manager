@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register for Hotspot Access</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; }
+        .container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); max-width: 500px; margin: auto; }
+        h2 { text-align: center; color: #333; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; }
+        input[type="text"], input[type="file"], select { width: calc(100% - 22px); padding: 10px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+        .message { text-align: center; margin-top: 20px; font-weight: bold; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Register for Hotspot Access</h2>
+        {% if message %}
+            <p class="message {{ message_type }}">{{ message }}</p>
+        {% endif %}
+        <form action="/register" method="post" enctype="multipart/form-data">
+            <label for="phone">Phone Number:</label>
+            <input type="text" id="phone" name="phone" placeholder="e.g., 01712345678" required>
+
+            <label for="package">Select Package:</label>
+            <select id="package" name="package" required>
+                <option value="">-- Select a package --</option>
+                <option value="15_days_40_tk">15 days - 40 TK</option>
+                <option value="30_days_100_tk">30 days - 100 TK</option>
+            </select>
+
+            <label for="screenshot">Payment Screenshot:</label>
+            <input type="file" id="screenshot" name="screenshot" accept="image/*" required>
+
+            <button type="submit">Submit Registration</button>
+        </form>
+    </div>
+</body>
+</html>
