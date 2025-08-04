@@ -1,27 +1,252 @@
 $(if http-status == 302)Hotspot login required$(endif)
 $(if http-header == "Location")$(link-redirect)$(endif)
-<html>
-<!--
-<?xml version="1.0" encoding="UTF-8"?>
-  <WISPAccessGatewayParam
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:noNamespaceSchemaLocation="http://$(hostname)/xml/WISPAccessGatewayParam.xsd">
-    <Redirect>
-	<AccessProcedure>1.0</AccessProcedure>
-	<AccessLocation>$(location-id)</AccessLocation>
-	<LocationName>$(location-name)</LocationName>
-	<LoginURL>$(link-login-only)?target=xml</LoginURL>
-	<MessageType>100</MessageType>
-	<ResponseCode>0</ResponseCode>
-    </Redirect>
-  </WISPAccessGatewayParam>
--->
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>...</title>
+<title>Hotspot Login Required</title>
 <meta http-equiv="refresh" content="0; url=$(link-redirect)">
-<meta http-equiv="pragma" content="no-cache">
-<meta http-equiv="expires" content="-1">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta http-equiv="pragma" content="no-cache" />
+<meta http-equiv="expires" content="-1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style type="text/css">
+    :root {
+        --bg-color: #f0f2f5;
+        --text-color: #333;
+        --card-bg: #fff;
+        --border-color: #ddd;
+        --primary-color: #007bff;
+        --primary-hover: #0056b3;
+        --success-color: #28a745;
+        --success-hover: #218838;
+        --error-color: #dc3545;
+        --input-bg: #fdfbfb;
+        --input-border: #bbb;
+        --link-color: #007bff;
+        --link-hover: #0056b3;
+    }
+
+    body.dark-mode {
+        --bg-color: #2c2c2c;
+        --text-color: #e0e0e0;
+        --card-bg: #3c3c3c;
+        --border-color: #555;
+        --primary-color: #66aaff;
+        --primary-hover: #4488ee;
+        --success-color: #4CAF50;
+        --success-hover: #45a049;
+        --error-color: #ff6b6b;
+        --input-bg: #4a4a4a;
+        --input-border: #777;
+        --link-color: #66aaff;
+        --link-hover: #4488ee;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        transition: background-color 0.3s, color 0.3s;
+        box-sizing: border-box;
+    }
+
+    .container {
+        background-color: var(--card-bg);
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .logo {
+        margin-bottom: 20px;
+    }
+
+    .logo img {
+        max-width: 150px;
+        height: auto;
+    }
+
+    h1 {
+        color: var(--primary-color);
+        margin-bottom: 25px;
+        font-size: 24px;
+    }
+
+    form {
+        margin-top: 20px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="submit"] {
+        width: calc(100% - 20px);
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid var(--input-border);
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+    }
+
+    input[type="submit"] {
+        background-color: var(--primary-color);
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    input[type="submit"]:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    .buy-package-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: var(--success-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .buy-package-btn:hover {
+        background-color: var(--success-hover);
+        transform: translateY(-2px);
+    }
+
+    .notice {
+        font-size: 12px;
+        color: var(--text-color);
+        margin-top: 20px;
+    }
+
+    .notice a {
+        color: var(--link-color);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .notice a:hover {
+        color: var(--link-hover);
+        text-decoration: underline;
+    }
+
+    .error-message {
+        color: var(--error-color);
+        font-weight: bold;
+        margin-top: 15px;
+    }
+
+    .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 20px;
+        color: var(--text-color);
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .theme-toggle:hover {
+        transform: scale(1.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
+        }
+        .container {
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .theme-toggle {
+            top: 10px;
+            right: 10px;
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+        }
+    }
+
+    /* Rlogin specific styles */
+    .rlogin-message {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+</style>
 </head>
 <body>
+<div class="theme-toggle" id="themeToggle">💡</div>
+
+<div class="container">
+    <div class="logo">
+        <div class="wifi-icon">📶</div>
+    </div>
+    <h1>Login Required</h1>
+
+    <p class="rlogin-message">You are being redirected to the login page.</p>
+    <p class="rlogin-message">If you are not redirected automatically, click <a href="$(link-redirect)">here</a>.</p>
+
+    <div class="footer-copyright">
+        Copyright by mrun1corn
+    </div>
+</div>
+
+<script type="text/javascript">
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        body.classList.add(savedTheme);
+        themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '💡';
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // Default to dark mode if OS preference is dark
+        body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark-mode');
+        themeToggle.textContent = '☀️';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        if (body.classList.contains('dark-mode')) {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light-mode');
+            themeToggle.textContent = '💡';
+        } else {
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+    });
+</script>
 </body>
 </html>

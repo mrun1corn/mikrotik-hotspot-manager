@@ -111,12 +111,22 @@ You need to configure your MikroTik router to allow the hotspot users to access 
     ```
     Example: `/ip hotspot walled-garden add dst-host=172.16.0.6 action=accept`
 
-3.  **Modify Hotspot Login Page (`login.html`):**
-    You need to upload the modified `login.html` file to your MikroTik router's hotspot directory (usually `/flash/hotspot` or `/hotspot`).
-    The `login.html` file in your project's root directory (`C:/Users/Joy Cinemas/Documents/mbk/login.html`) has been updated to include a "Buy Package" button.
-    **Upload this `login.html` file to your MikroTik router.**
+3.  **Upload Hotspot UI Files to MikroTik:**
+    The following files in your project's root directory (`C:/Users/Joy Cinemas/Documents/mbk/`) have been updated with a modern, responsive UI, dark/light mode support, and a "Buy Package" button (in `login.html`):
+    *   `login.html`
+    *   `logout.html`
+    *   `status.html`
+    *   `alogin.html`
+    *   `error.html`
+    *   `redirect.html`
+    *   `rlogin.html`
+    *   `radvert.html`
 
-    The button links to `http://YOUR_FLASK_SERVER_IP:5000/register`.
+    You need to **upload all these modified HTML files** to your MikroTik router's hotspot directory (usually `/flash/hotspot` or `/hotspot`).
+
+    **For the Logo:** The UI includes a placeholder for a logo (`<img src="/img/your_logo.png" ...>`). You should:
+    *   Create your logo image (e.g., `your_logo.png`).
+    *   Upload this logo image to the `/img` directory within your MikroTik router's hotspot folder (you might need to create this `/img` directory if it doesn't exist).
 
 4.  **MikroTik Hotspot User Profiles:**
     The `main.py` script will automatically create the necessary hotspot user profiles (`15-days-40TK`, `30-days-100TK`) on your MikroTik router when it starts, if they don't already exist.

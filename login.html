@@ -1,111 +1,281 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
 <title>internet hotspot > login</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <meta http-equiv="pragma" content="no-cache" />
 <meta http-equiv="expires" content="-1" />
-<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0;"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <style type="text/css">
-body {color: #737373; font-size: 10px; font-family: verdana;}
+    :root {
+        --bg-color: #f0f2f5;
+        --text-color: #333;
+        --card-bg: #fff;
+        --border-color: #ddd;
+        --primary-color: #007bff;
+        --primary-hover: #0056b3;
+        --success-color: #28a745;
+        --success-hover: #218838;
+        --error-color: #dc3545;
+        --input-bg: #fdfbfb;
+        --input-border: #bbb;
+        --link-color: #007bff;
+        --link-hover: #0056b3;
+    }
 
-textarea,input,select {
-background-color: #FDFBFB;
-border: 1px solid #BBBBBB;
-padding: 2px;
-margin: 1px;
-font-size: 14px;
-color: #808080;
-}
+    body.dark-mode {
+        --bg-color: #2c2c2c;
+        --text-color: #e0e0e0;
+        --card-bg: #3c3c3c;
+        --border-color: #555;
+        --primary-color: #66aaff;
+        --primary-hover: #4488ee;
+        --success-color: #4CAF50;
+        --success-hover: #45a049;
+        --error-color: #ff6b6b;
+        --input-bg: #4a4a4a;
+        --input-border: #777;
+        --link-color: #66aaff;
+        --link-hover: #4488ee;
+    }
 
-a, a:link, a:visited, a:active { color: #AAAAAA; text-decoration: none; font-size: 10px; }
-a:hover { border-bottom: 1px dotted #c1c1c1; color: #AAAAAA; }
-img {border: none;}
-td { font-size: 14px; color: #7A7A7A; }
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        transition: background-color 0.3s, color 0.3s;
+        box-sizing: border-box;
+    }
+
+    .container {
+        background-color: var(--card-bg);
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+        max-width: 400px;
+        width: 100%;
+        text-align: center;
+        transition: background-color 0.3s, box-shadow 0.3s;
+    }
+
+    .logo {
+        margin-bottom: 20px;
+    }
+
+    .logo img {
+        max-width: 150px;
+        height: auto;
+    }
+
+    h1 {
+        color: var(--primary-color);
+        margin-bottom: 25px;
+        font-size: 24px;
+    }
+
+    form {
+        margin-top: 20px;
+    }
+
+    input[type="text"],
+    input[type="password"],
+    input[type="submit"] {
+        width: calc(100% - 20px);
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid var(--input-border);
+        border-radius: 5px;
+        font-size: 16px;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        transition: border-color 0.3s, background-color 0.3s, color 0.3s;
+    }
+
+    input[type="submit"] {
+        background-color: var(--primary-color);
+        color: white;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    input[type="submit"]:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+    }
+
+    .buy-package-btn {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: var(--success-color);
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin-top: 20px;
+        transition: background-color 0.3s, transform 0.2s;
+    }
+
+    .buy-package-btn:hover {
+        background-color: var(--success-hover);
+        transform: translateY(-2px);
+    }
+
+    .notice {
+        font-size: 12px;
+        color: var(--text-color);
+        margin-top: 20px;
+    }
+
+    .notice a {
+        color: var(--link-color);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .notice a:hover {
+        color: var(--link-hover);
+        text-decoration: underline;
+    }
+
+    .error-message {
+        color: var(--error-color);
+        font-weight: bold;
+        margin-top: 15px;
+    }
+
+    .theme-toggle {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 20px;
+        color: var(--text-color);
+        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .theme-toggle:hover {
+        transform: scale(1.1);
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 600px) {
+        body {
+            padding: 10px;
+        }
+        .container {
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .theme-toggle {
+            top: 10px;
+            right: 10px;
+            width: 35px;
+            height: 35px;
+            font-size: 18px;
+        }
+    }
 </style>
-
 </head>
-
 <body>
-$(if chap-id)
-	<form name="sendin" action="$(link-login-only)" method="post">
-		<input type="hidden" name="username" />
-		<input type="hidden" name="password" />
-		<input type="hidden" name="dst" value="$(link-orig)" />
-		<input type="hidden" name="popup" value="true" />
-	</form>
-	
-	<script type="text/javascript" src="/md5.js"></script>
-	<script type="text/javascript">
-	<!--
-	    function doLogin() {
-		document.sendin.username.value = document.login.username.value;
-		document.sendin.password.value = hexMD5('$(chap-id)' + document.login.password.value + '$(chap-challenge)');
-		document.sendin.submit();
-		return false;
-	    }
-	//-->
-	</script>
-$(endif)
+<div class="theme-toggle" id="themeToggle">💡</div>
 
-<div align="center">
-<a href="$(link-login-only)?target=lv&amp;dst=$(link-orig-esc)">Latviski</a>
+<div class="container">
+    <div class="logo">
+        <div class="wifi-icon">📶</div>
+    </div>
+    <h1>Hotspot Login</h1>
+
+    $(if chap-id)
+    <form name="sendin" action="$(link-login-only)" method="post" style="display: none;">
+        <input type="hidden" name="username" />
+        <input type="hidden" name="password" />
+        <input type="hidden" name="dst" value="$(link-orig)" />
+        <input type="hidden" name="popup" value="true" />
+    </form>
+    <script type="text/javascript" src="/md5.js"></script>
+    <script type="text/javascript">
+    <!--
+        function doLogin() {
+            document.sendin.username.value = document.login.username.value;
+            document.sendin.password.value = hexMD5('$(chap-id)' + document.login.password.value + '$(chap-challenge)');
+            document.sendin.submit();
+            return false;
+        }
+    //-->
+    </script>
+    $(endif)
+
+    <form name="login" action="$(link-login-only)" method="post" $(if chap-id) onSubmit="return doLogin()" $(endif)>
+        <input type="hidden" name="dst" value="$(link-orig)" />
+        <input type="hidden" name="popup" value="true" />
+        
+        <input type="text" name="username" value="$(username)" placeholder="Username" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <input type="submit" value="Login" />
+    </form>
+
+    <a href="http://172.16.0.6:5000/register" class="buy-package-btn">Buy Package</a>
+
+    <div class="notice">
+        Please log on to use the internet hotspot service.<br />
+        $(if trial == 'yes')Free trial available, <a href="$(link-login-only)?dst=$(link-orig-esc)&amp;username=T-$(mac-esc)">click here</a>.$(endif)
+    </div>
+
+    $(if error)<div class="error-message">$(error)</div>$(endif)
+
+    <div class="footer-copyright">
+        Copyright by mrun1corn
+    </div>
 </div>
 
-<table width="100%" style="margin-top: 10%;">
-	<tr>
-	<td align="center" valign="middle">
-		<div class="notice" style="color: #c1c1c1; font-size: 9px">Please log on to use the internet hotspot service<br />$(if trial == 'yes')Free trial available, <a style="color: #FF8080"href="$(link-login-only)?dst=$(link-orig-esc)&amp;username=T-$(mac-esc)">click here</a>.$(endif)</div><br />
-		<table width="280" height="280" style="border: 1px solid #cccccc; padding: 0px;" cellpadding="0" cellspacing="0">
-			<tr>
-				<td align="center" valign="bottom" height="175" colspan="2">
-					<form name="login" action="$(link-login-only)" method="post"
-					    $(if chap-id) onSubmit="return doLogin()" $(endif)>
-						<input type="hidden" name="dst" value="$(link-orig)" />
-						<input type="hidden" name="popup" value="true" />
-						
-							<table width="100" style="background-color: #ffffff">
-								<tr><td align="right">login</td>
-										<td><input style="width: 80px" name="username" type="text" value="$(username)"/></td>
-								</tr>
-								<tr><td align="right">password</td>
-										<td><input style="width: 80px" name="password" type="password"/></td>
-								</tr>
-								<tr><td>&nbsp;</td>
-										<td><input type="submit" value="OK" /></td>
-								</tr>
-							</table>
-					</form>
-				</td>
-			</tr>
-			<tr><td align="center">
-				<div style="text-align: center; margin-top: 20px;">
-					<a href="http://192.168.5.245:5000/register" style="
-						display: inline-block;
-						padding: 10px 20px;
-						background-color: #28a745;
-						color: white;
-						text-decoration: none;
-						border-radius: 5px;
-						font-weight: bold;
-					">Buy Package</a>
-				</div>
-				<br />
-				<a href="http://www.mikrotik.com" target="_blank" style="border: none;"><img src="/img/logobottom.png" alt="mikrotik" /></a>
-			</td></tr>
-		</table>
-	
-	<br /><div style="color: #c1c1c1; font-size: 9px">Powered by MikroTik RouterOS</div>
-	$(if error)<br /><div style="color: #FF8080; font-size: 9px">$(error)</div>$(endif)
-	</td>
-	</tr>
-</table>
-
 <script type="text/javascript">
-<!--
-  document.login.username.focus();
-//-->
+    // Theme Toggle Logic
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Check for saved theme preference
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        body.classList.add(savedTheme);
+        themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '💡';
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // Default to dark mode if OS preference is dark
+        body.classList.add('dark-mode');
+        localStorage.setItem('theme', 'dark-mode');
+        themeToggle.textContent = '☀️';
+    }
+
+    themeToggle.addEventListener('click', () => {
+        if (body.classList.contains('dark-mode')) {
+            body.classList.remove('dark-mode');
+            localStorage.setItem('theme', 'light-mode');
+            themeToggle.textContent = '💡';
+        } else {
+            body.classList.add('dark-mode');
+            localStorage.setItem('theme', 'dark-mode');
+            themeToggle.textContent = '☀️';
+        }
+    });
+
+    // Focus username field
+    document.login.username.focus();
 </script>
 </body>
 </html>
