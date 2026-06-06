@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "backend/main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/cron/check-expiration",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/api/webhook",
+      "dest": "backend/main.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "backend/main.py"
+    }
+  ],
+  "crons": [
+    {
+      "path": "/api/cron/check-expiration",
+      "schedule": "0 0 * * *"
+    }
+  ]
+}
