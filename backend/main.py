@@ -135,7 +135,22 @@ class MikroTikAPI:
             logger.info(f"MikroTik user '{username}' added (disabled), profile='{profile_name}'")
             return True
         except Exception as e:
-            logger.error(f"Error adding MikroTik user '{username}': {e}")
+            logger.warning(f"Error adding MikroTik user '{username}': {e}. Attempting auto-sync...")
+            # Auto-healing: if it failed because the profile was missing, run sync and retry
+            self.sync_initial_setup()
+            try:
+                # Re-connect to ensure fresh session
+                pool2 = self.connect()
+                if pool2:
+                    api2 = pool2.get_api()
+                    users2 = api2.get_resource('/ip/hotspot/user')
+                    users2.add(name=username, password=password, profile=profile_name, disabled='yes')
+                    pool2.disconnect()
+                    logger.info(f"MikroTik user '{username}' added successfully after auto-sync.")
+                    return True
+            except Exception as e2:
+                logger.error(f"Failed to add user even after auto-sync: {e2}")
+                if 'pool2' in locals() and pool2: pool2.disconnect()
             return False
         finally:
             pool.disconnect()
@@ -232,6 +247,55 @@ class MikroTikAPI:
         except Exception:
             # Connection usually drops immediately on reboot, causing an exception
             return True
+    def set_profile_limit(self, profile_name, rate_limit):
+        """Changes the UL/DL rate limit for a hotspot profile."""
+        pool = self.connect()
+        if not pool: return False
+        try:
+            api = pool.get_api()
+            profiles = api.get_resource('/ip/hotspot/user/profile')
+            p = profiles.get(name=profile_name)
+            if p:
+                profiles.set(id=p[0]['id'], rate_limit=rate_limit)
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Error setting limit for {profile_name}: {e}")
+            return False
+        finally:
+            pool.disconnect()
+    def sync_initial_setup(self):
+        """Configures a fresh router with necessary profiles and walled-garden."""
+        pool = self.connect()
+        if not pool: return "Connection failed"
+        try:
+            api = pool.get_api()
+            log = []
+            # 1. Profiles
+            profiles = api.get_resource('/ip/hotspot/user/profile')
+            existing_profiles = [p.get('name') for p in profiles.get()]
+            if '15-days-40TK' not in existing_profiles:
+                profiles.add(name='15-days-40TK', rate_limit='2M/2M', shared_users='1')
+                log.append("Created profile: 15-days-40TK (2M/2M)")
+            if '30-days-100TK' not in existing_profiles:
+                profiles.add(name='30-days-100TK', rate_limit='5M/5M', shared_users='1')
+                log.append("Created profile: 30-days-100TK (5M/5M)")
+            # 2. Walled Garden
+            wg = api.get_resource('/ip/hotspot/walled-garden')
+            existing_wg = [w.get('dst-host') for w in wg.get() if 'dst-host' in w]
+            domains = ['mikrotik-hotspot-manager-one.vercel.app', '*.supabase.co', '*.bkash.com', 'bkash.com', '*.pay.bka.sh', 'pay.bka.sh']
+            for d in domains:
+                if d not in existing_wg:
+                    wg.add(dst_host=d, action='allow')
+                    log.append(f"Added Walled Garden: {d}")
+            if not log:
+                return "Router is already fully synced! No missing configurations."
+            return "\n".join(log)
+        except Exception as e:
+            logger.error(f"Sync error: {e}")
+            return f"Error during sync: {e}"
+        finally:
+            pool.disconnect()
 mikrotik = MikroTikAPI(MIKROTIK_IP, MIKROTIK_USER, MIKROTIK_PASS, MIKROTIK_API_PORT)
 
 # --- Flask Web Server ---
@@ -431,6 +495,8 @@ def send_help(message):
         "/users - List all active/approved users\n"
         "/pending - List users awaiting approval\n"
         "/add `<phone>` `<package>` - Instantly create and approve a user\n"
+        "/setlimit `<profile>` `<limit>` - Change speed limit of a package\n"
+        "/sync - Initialize a fresh router with packages & walled garden\n"
         "/kick `<username>` - Disconnect an active user session\n"
         "/delete `<username>` - Completely remove a user\n"
         "/reboot - Restart the MikroTik router\n"
@@ -612,6 +678,25 @@ def add_user_cmd(message):
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     try:
+@bot.message_handler(commands=['setlimit'])
+def set_limit_cmd(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    args = message.text.split()
+    if len(args) < 3:
+        bot.reply_to(message, "Usage: `/setlimit <profile_name> <limit>`\nExample: `/setlimit 15-days-40TK 3M/3M`", parse_mode="Markdown")
+        return
+    profile = args[1]
+    limit = args[2]
+    if mikrotik.set_profile_limit(profile, limit):
+        bot.reply_to(message, f"✅ Successfully updated profile `{profile}` to `{limit}`.", parse_mode="Markdown")
+    else:
+        bot.reply_to(message, f"⚠️ Failed to update profile `{profile}`. Does it exist?", parse_mode="Markdown")
+@bot.message_handler(commands=['sync'])
+def sync_cmd(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    bot.reply_to(message, "⚙️ Syncing router configurations...")
+    result = mikrotik.sync_initial_setup()
+    bot.reply_to(message, f"**Sync Result:**\n{result}", parse_mode="Markdown")
         if call.from_user.id != TELEGRAM_CHAT_ID:
             bot.answer_callback_query(call.id, "You are not authorized to perform this action.")
             return
