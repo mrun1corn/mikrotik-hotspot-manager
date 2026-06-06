@@ -247,6 +247,18 @@ class MikroTikAPI:
         except Exception:
             # Connection usually drops immediately on reboot, causing an exception
             return True
+    def get_profiles(self):
+        """Returns list of hotspot user profiles."""
+        pool = self.connect()
+        if not pool: return []
+        try:
+            api = pool.get_api()
+            return api.get_resource('/ip/hotspot/user/profile').get()
+        except Exception as e:
+            logger.error(f"Error getting profiles: {e}")
+            return []
+        finally:
+            pool.disconnect()
     def set_profile_limit(self, profile_name, rate_limit):
         """Changes the UL/DL rate limit for a hotspot profile."""
         pool = self.connect()
@@ -494,8 +506,8 @@ def send_help(message):
         "/active - View currently connected users\n"
         "/users - List all active/approved users\n"
         "/pending - List users awaiting approval\n"
+        "/packages - Edit package speeds with interactive buttons\n"
         "/add `<phone>` `<package>` - Instantly create and approve a user\n"
-        "/setlimit `<profile>` `<limit>` - Change speed limit of a package\n"
         "/sync - Initialize a fresh router with packages & walled garden\n"
         "/kick `<username>` - Disconnect an active user session\n"
         "/delete `<username>` - Completely remove a user\n"
@@ -675,6 +687,23 @@ def add_user_cmd(message):
             bot.reply_to(message, "⚠️ Added to DB, but failed to create in MikroTik router!")
     except Exception as e:
         bot.reply_to(message, f"Database error: {e}")
+@bot.message_handler(commands=['packages'])
+def packages_cmd(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    msg = bot.reply_to(message, "⏳ Fetching packages from router...")
+    profiles = mikrotik.get_profiles()
+    if not profiles:
+        bot.edit_message_text("⚠️ Failed to fetch packages from MikroTik.", chat_id=message.chat.id, message_id=msg.message_id)
+        return
+    keyboard = types.InlineKeyboardMarkup(row_width=1)
+    text = "📦 **Manage Hotspot Packages**\n\nCurrent Speeds:\n"
+    for p in profiles:
+        name = p.get('name')
+        if name == 'default': continue
+        limit = p.get('rate-limit', 'Unlimited')
+        text += f"• `{name}`: {limit}\n"
+        keyboard.add(types.InlineKeyboardButton(f"⚙️ Edit {name}", callback_data=f"pkg_{name}"))
+    bot.edit_message_text(text, chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown", reply_markup=keyboard)
 @bot.message_handler(commands=['setlimit'])
 def set_limit_cmd(message):
     if message.chat.id != TELEGRAM_CHAT_ID: return
@@ -710,6 +739,39 @@ def callback_query(call):
             return
         if call.data == "reboot_cancel":
             bot.edit_message_text("❌ Reboot cancelled.", chat_id=call.message.chat.id, message_id=call.message.message_id)
+            return
+        if call.data == "cancel_pkg":
+            bot.edit_message_text("❌ Package edit cancelled.", chat_id=call.message.chat.id, message_id=call.message.message_id)
+            return
+        if call.data.startswith("pkg_"):
+            profile_name = call.data[4:]
+            keyboard = types.InlineKeyboardMarkup(row_width=2)
+            speeds = ["1M/1M", "2M/2M", "3M/3M", "5M/5M", "10M/10M"]
+            buttons = [types.InlineKeyboardButton(s, callback_data=f"spd_{profile_name}_{s}") for s in speeds]
+            keyboard.add(*buttons)
+            keyboard.add(types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_pkg"))
+            bot.edit_message_text(f"🚀 **Select new speed limit for `{profile_name}`:**", 
+                                  chat_id=call.message.chat.id, 
+                                  message_id=call.message.message_id, 
+                                  parse_mode="Markdown", 
+                                  reply_markup=keyboard)
+            return
+        if call.data.startswith("spd_"):
+            parts = call.data.split('_', 2)
+            if len(parts) == 3:
+                profile_name = parts[1]
+                new_limit = parts[2]
+                bot.edit_message_text(f"⏳ Updating `{profile_name}` to {new_limit}...", 
+                                      chat_id=call.message.chat.id, 
+                                      message_id=call.message.message_id, parse_mode="Markdown")
+                if mikrotik.set_profile_limit(profile_name, new_limit):
+                    bot.edit_message_text(f"✅ **Success!**\nPackage `{profile_name}` is now limited to `{new_limit}`.", 
+                                          chat_id=call.message.chat.id, 
+                                          message_id=call.message.message_id, parse_mode="Markdown")
+                else:
+                    bot.edit_message_text(f"⚠️ Failed to update `{profile_name}`.", 
+                                          chat_id=call.message.chat.id, 
+                                          message_id=call.message.message_id, parse_mode="Markdown")
             return
         # Safe split — handle malformed callback data
         if '_' not in call.data:
