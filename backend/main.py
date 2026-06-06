@@ -490,10 +490,22 @@ def telegram_webhook():
     # Always return 200 to prevent Telegram from retrying on errors
     return '', 200
 
+def get_admin_keyboard():
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    markup.add(
+        types.KeyboardButton("📊 System Status"),
+        types.KeyboardButton("📦 Manage Packages"),
+        types.KeyboardButton("👥 Active Users"),
+        types.KeyboardButton("⏳ Pending Approvals"),
+        types.KeyboardButton("⚙️ Router Sync"),
+        types.KeyboardButton("🔄 Reboot Router"),
+        types.KeyboardButton("ℹ️ Help")
+    )
+    return markup
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     if message.chat.id == TELEGRAM_CHAT_ID:
-        bot.reply_to(message, "Welcome, admin! I'm ready to manage hotspot users via webhooks. Type /help to see available commands.")
+        bot.reply_to(message, "Welcome, admin! Use the menu below to easily manage your hotspot.", reply_markup=get_admin_keyboard())
     else:
         bot.reply_to(message, "You are not authorized to use this bot.")
 @bot.message_handler(commands=['help'])
@@ -723,6 +735,20 @@ def sync_cmd(message):
     bot.reply_to(message, "⚙️ Syncing router configurations...")
     result = mikrotik.sync_initial_setup()
     bot.reply_to(message, f"**Sync Result:**\n{result}", parse_mode="Markdown")
+@bot.message_handler(func=lambda m: m.text == "📊 System Status")
+def text_status(m): bot_status_check(m)
+@bot.message_handler(func=lambda m: m.text == "📦 Manage Packages")
+def text_packages(m): packages_cmd(m)
+@bot.message_handler(func=lambda m: m.text == "👥 Active Users")
+def text_active(m): list_active(m)
+@bot.message_handler(func=lambda m: m.text == "⏳ Pending Approvals")
+def text_pending(m): list_pending(m)
+@bot.message_handler(func=lambda m: m.text == "⚙️ Router Sync")
+def text_sync(m): sync_cmd(m)
+@bot.message_handler(func=lambda m: m.text == "🔄 Reboot Router")
+def text_reboot(m): reboot_cmd(m)
+@bot.message_handler(func=lambda m: m.text == "ℹ️ Help")
+def text_help(m): send_help(m)
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     try:
