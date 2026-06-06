@@ -449,6 +449,98 @@ def callback_query(call):
             pass
 
 # --- Cron Job Expiration Checker Route ---
+@app.route('/')
+@app.route('/status')
+def status_dashboard():
+    # 1. Check MikroTik
+    mt_status = "Not Connected"
+    mt_uptime = "Unknown"
+    pool = mikrotik.connect()
+    if pool:
+        try:
+            api = pool.get_api()
+            res = api.get_resource('/system/resource').get()
+            if res:
+                mt_uptime = res[0].get('uptime', 'Unknown')
+                mt_status = "Connected ✅"
+        except Exception as e:
+            mt_status = f"Error: {e}"
+        finally:
+            pool.disconnect()
+    else:
+        mt_status = "Failed to connect ❌"
+    # 2. Check Telegram
+    tg_bot = "Unknown"
+    tg_webhook = "Unknown"
+    try:
+        me = bot.get_me()
+        tg_bot = f"@{me.username} ✅"
+        wh = bot.get_webhook_info()
+        if wh.url:
+            tg_webhook = f"Active ({wh.url}) ✅"
+            if wh.pending_update_count > 0:
+                tg_webhook += f" [Pending updates: {wh.pending_update_count}]"
+            if wh.last_error_message:
+                tg_webhook += f" | Last Error: {wh.last_error_message}"
+        else:
+            tg_webhook = "Not Set ❌"
+    except Exception as e:
+        tg_bot = f"Error: {e} ❌"
+    # 3. Check Supabase
+    db_status = "Unknown"
+    try:
+        res = supabase.table('users').select('username', count='exact').limit(1).execute()
+        db_status = f"Connected ✅ (Total users: {res.count})"
+    except Exception as e:
+        db_status = f"Error: {e} ❌"
+    html = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>System Status Dashboard</title>
+        <style>
+            body {{ font-family: Arial, sans-serif; padding: 20px; background: #f4f4f9; }}
+            .card {{ background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }}
+            h1 {{ color: #333; }}
+            .status-item {{ margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee; }}
+            .label {{ font-weight: bold; color: #555; }}
+            .value {{ margin-top: 5px; color: #111; word-wrap: break-word; }}
+            .setup-btn {{ display: inline-block; margin-top: 20px; padding: 10px 15px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; }}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>📊 System Status Dashboard</h1>
+            <div class="status-item">
+                <div class="label">🌐 Vercel Host:</div>
+                <div class="value">{request.host}</div>
+            </div>
+            <div class="status-item">
+                <div class="label">🤖 Telegram Bot:</div>
+                <div class="value">{tg_bot}</div>
+            </div>
+            <div class="status-item">
+                <div class="label">🔗 Telegram Webhook:</div>
+                <div class="value">{tg_webhook}</div>
+            </div>
+            <div class="status-item">
+                <div class="label">📡 MikroTik Router:</div>
+                <div class="value">{mt_status} (Uptime: {mt_uptime})</div>
+            </div>
+            <div class="status-item">
+                <div class="label">🗄️ Supabase Database:</div>
+                <div class="value">{db_status}</div>
+            </div>
+            <div class="status-item">
+                <div class="label">Admin Chat ID Configured:</div>
+                <div class="value">{TELEGRAM_CHAT_ID}</div>
+            </div>
+            <a href="/api/setup" class="setup-btn">🔄 Re-register Webhook</a>
+        </div>
+    </body>
+    </html>
+    """
+    return html
 @app.route('/api/cron/check-expiration', methods=['GET', 'POST'])
 @require_cron_auth
 def cron_check_expiration():
