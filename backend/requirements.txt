@@ -4,3 +4,4 @@ Pillow
 pyTelegramBotAPI
 routeros-api
 supabase
+qrcode[pil]

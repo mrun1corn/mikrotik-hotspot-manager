@@ -4,6 +4,7 @@ import time
 import datetime
 import string
 import secrets
+import qrcode
 import io
 import re
 import logging
@@ -320,16 +321,30 @@ def download_credentials(username):
     username_text = f"Username: {username}"
     password_text = f"Password: {user_data['password']}"
 
-    # Create image in memory
-    img = Image.new('RGB', (400, 200), color=(255, 255, 255))
+    # Create image in memory (larger to fit QR code)
+    img = Image.new('RGB', (600, 250), color=(255, 255, 255))
     d = ImageDraw.Draw(img)
     try:
         font = ImageFont.truetype("arial.ttf", 20)
+        title_font = ImageFont.truetype("arial.ttf", 26)
     except IOError:
         font = ImageFont.load_default()
+        title_font = ImageFont.load_default()
 
-    d.text((50, 70), username_text, fill=(0, 0, 0), font=font)
-    d.text((50, 110), password_text, fill=(0, 0, 0), font=font)
+    # Draw text
+    d.text((40, 50), "WiFi Hotspot Credentials", fill=(0, 123, 255), font=title_font)
+    d.text((40, 110), username_text, fill=(0, 0, 0), font=font)
+    d.text((40, 150), password_text, fill=(0, 0, 0), font=font)
+    
+    # Generate QR Code
+    qr_data = f"Username: {username}\nPassword: {user_data['password']}"
+    qr = qrcode.QRCode(version=1, box_size=5, border=2)
+    qr.add_data(qr_data)
+    qr.make(fit=True)
+    qr_img = qr.make_image(fill_color="black", back_color="white")
+    
+    # Paste QR Code onto main image
+    img.paste(qr_img, (400, 40))
 
     img_io = io.BytesIO()
     img.save(img_io, 'PNG')
