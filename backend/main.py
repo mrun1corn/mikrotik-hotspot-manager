@@ -354,9 +354,112 @@ def telegram_webhook():
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     if message.chat.id == TELEGRAM_CHAT_ID:
-        bot.reply_to(message, "Welcome, admin! I'm ready to manage hotspot users via webhooks.")
+        bot.reply_to(message, "Welcome, admin! I'm ready to manage hotspot users via webhooks. Type /help to see available commands.")
     else:
         bot.reply_to(message, "You are not authorized to use this bot.")
+@bot.message_handler(commands=['help'])
+def send_help(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    text = (
+        "🛠 **Available Commands:**\n\n"
+        "/start - Check bot authorization\n"
+        "/status - View system & router status\n"
+        "/users - List all active users\n"
+        "/pending - List users awaiting approval\n"
+        "/delete `<username>` - Manually delete a user\n"
+        "/help - Show this message"
+    )
+    bot.reply_to(message, text, parse_mode="Markdown")
+@bot.message_handler(commands=['status'])
+def bot_status_check(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    msg = bot.reply_to(message, "⏳ Checking system status...")
+    # Check MikroTik
+    mt_status = "❌ Disconnected"
+    pool = mikrotik.connect()
+    if pool:
+        try:
+            api = pool.get_api()
+            res = api.get_resource('/system/resource').get()
+            if res:
+                uptime = res[0].get('uptime', 'Unknown')
+                mt_status = f"✅ Connected (Uptime: {uptime})"
+        except Exception:
+            pass
+        finally:
+            pool.disconnect()
+    # Check DB
+    db_status = "❌ Disconnected"
+    try:
+        headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
+        res = requests.get(f"{SUPABASE_URL}/rest/v1/users?select=username", headers=headers, timeout=5)
+        if res.status_code == 200:
+            count = len(res.json())
+            db_status = f"✅ Connected ({count} total users)"
+    except Exception:
+        pass
+    text = f"📊 **System Status**\n\n📡 **MikroTik:** {mt_status}\n🗄 **Database:** {db_status}"
+    bot.edit_message_text(text, chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
+@bot.message_handler(commands=['users'])
+def list_users(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    try:
+        res = supabase.table('users').select('*').eq('approved', True).execute()
+        users = res.data or []
+        if not users:
+            bot.reply_to(message, "No active users found.")
+            return
+        text = "👥 **Active Users:**\n"
+        for u in users:
+            exp = u.get('expiration_timestamp')
+            if exp:
+                exp = exp.split('T')[0]
+            else:
+                exp = "Unknown"
+            text += f"• `{u['username']}` | Exp: {exp}\n"
+        bot.reply_to(message, text, parse_mode="Markdown")
+    except Exception as e:
+        bot.reply_to(message, f"Database error: {e}")
+@bot.message_handler(commands=['pending'])
+def list_pending(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    try:
+        res = supabase.table('users').select('*').eq('approved', False).execute()
+        users = res.data or []
+        if not users:
+            bot.reply_to(message, "No pending registrations.")
+            return
+        text = "⏳ **Pending Approvals:**\n"
+        for u in users:
+            reg = u.get('registration_timestamp', '').split('T')[0]
+            text += f"• `{u['username']}` ({u['package']}) - {reg}\n"
+        bot.reply_to(message, text, parse_mode="Markdown")
+    except Exception as e:
+        bot.reply_to(message, f"Database error: {e}")
+@bot.message_handler(commands=['delete'])
+def delete_user_cmd(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    args = message.text.split()
+    if len(args) < 2:
+        bot.reply_to(message, "Usage: `/delete <username>`", parse_mode="Markdown")
+        return
+    username = sanitize_username(args[1])
+    try:
+        res = supabase.table('users').select('screenshot_url').eq('username', username).execute()
+        if not res.data:
+            bot.reply_to(message, f"User `{username}` not found in database.", parse_mode="Markdown")
+            return
+        try:
+            screenshot_filename = res.data[0]["screenshot_url"].split('/')[-1]
+            supabase.storage.from_('screenshots').remove([screenshot_filename])
+        except Exception:
+            pass
+        supabase.table('users').delete().eq('username', username).execute()
+        mt_deleted = mikrotik.delete_hotspot_user(username)
+        mt_status = "✅ Removed from MikroTik" if mt_deleted else "⚠️ Not found/failed in MikroTik"
+        bot.reply_to(message, f"🗑 User `{username}` deleted.\n{mt_status}", parse_mode="Markdown")
+    except Exception as e:
+        bot.reply_to(message, f"Error deleting user: {e}")
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
