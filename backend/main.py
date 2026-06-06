@@ -1,3 +1,4 @@
+import requests
 import os
 import time
 import datetime
@@ -489,7 +490,9 @@ def status_dashboard():
     # 3. Check Supabase
     db_status = "Unknown"
     try:
-        res = supabase.table('users').select('username').limit(1).execute()
+        headers = {"apikey": SUPABASE_KEY, "Authorization": f"Bearer {SUPABASE_KEY}"}
+        res = requests.get(f"{SUPABASE_URL}/rest/v1/users?select=username&limit=1", headers=headers, timeout=5)
+        res.raise_for_status()
         db_status = f"Connected ✅"
     except Exception as e:
         db_status = f"Error: {e} ❌"
