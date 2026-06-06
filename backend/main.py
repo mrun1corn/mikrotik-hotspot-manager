@@ -184,6 +184,54 @@ class MikroTikAPI:
         finally:
             pool.disconnect()
 
+    def kick_user(self, username):
+        """Disconnects an active user session."""
+        pool = self.connect()
+        if not pool:
+            return False
+        try:
+            api = pool.get_api()
+            active = api.get_resource('/ip/hotspot/active')
+            sessions = active.get(user=username)
+            if sessions:
+                for session in sessions:
+                    active.remove(id=session['id'])
+                logger.info(f"Kicked active session for '{username}'.")
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Error kicking user '{username}': {e}")
+            return False
+        finally:
+            pool.disconnect()
+    def get_active_users(self):
+        """Returns list of currently active hotspot sessions."""
+        pool = self.connect()
+        if not pool:
+            return []
+        try:
+            api = pool.get_api()
+            active = api.get_resource('/ip/hotspot/active')
+            return active.get()
+        except Exception as e:
+            logger.error(f"Error getting active users: {e}")
+            return []
+        finally:
+            pool.disconnect()
+    def reboot_router(self):
+        """Reboots the MikroTik router."""
+        pool = self.connect()
+        if not pool:
+            return False
+        try:
+            api = pool.get_api()
+            # Send reboot command via binary resource
+            sys = api.get_binary_resource('/system')
+            sys.call('reboot')
+            return True
+        except Exception:
+            # Connection usually drops immediately on reboot, causing an exception
+            return True
 mikrotik = MikroTikAPI(MIKROTIK_IP, MIKROTIK_USER, MIKROTIK_PASS, MIKROTIK_API_PORT)
 
 # --- Flask Web Server ---
@@ -379,9 +427,13 @@ def send_help(message):
         "🛠 **Available Commands:**\n\n"
         "/start - Check bot authorization\n"
         "/status - View system & router status\n"
-        "/users - List all active users\n"
+        "/active - View currently connected users\n"
+        "/users - List all active/approved users\n"
         "/pending - List users awaiting approval\n"
-        "/delete `<username>` - Manually delete a user\n"
+        "/add `<phone>` `<package>` - Instantly create and approve a user\n"
+        "/kick `<username>` - Disconnect an active user session\n"
+        "/delete `<username>` - Completely remove a user\n"
+        "/reboot - Restart the MikroTik router\n"
         "/help - Show this message"
     )
     bot.reply_to(message, text, parse_mode="Markdown")
@@ -476,6 +528,87 @@ def delete_user_cmd(message):
     except Exception as e:
         bot.reply_to(message, f"Error deleting user: {e}")
 
+@bot.message_handler(commands=['active'])
+def list_active(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    active_users = mikrotik.get_active_users()
+    if not active_users:
+        bot.reply_to(message, "No active sessions on the router right now.")
+        return
+    text = "🟢 **Currently Connected Sessions:**\n\n"
+    for idx, u in enumerate(active_users):
+        name = u.get('user', 'Unknown')
+        addr = u.get('address', 'Unknown')
+        uptime = u.get('uptime', '0s')
+        text += f"• `{name}` | IP: {addr} | Uptime: {uptime}\n"
+    bot.reply_to(message, text, parse_mode="Markdown")
+@bot.message_handler(commands=['kick'])
+def kick_user_cmd(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    args = message.text.split()
+    if len(args) < 2:
+        bot.reply_to(message, "Usage: `/kick <username>`", parse_mode="Markdown")
+        return
+    username = sanitize_username(args[1])
+    if mikrotik.kick_user(username):
+        bot.reply_to(message, f"👢 Kicked active session for `{username}`.", parse_mode="Markdown")
+    else:
+        bot.reply_to(message, f"⚠️ Could not find active session for `{username}` or error occurred.", parse_mode="Markdown")
+@bot.message_handler(commands=['reboot'])
+def reboot_cmd(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    # Add a confirmation inline keyboard
+    keyboard = types.InlineKeyboardMarkup()
+    yes_btn = types.InlineKeyboardButton("Yes, Reboot", callback_data="reboot_confirm")
+    no_btn = types.InlineKeyboardButton("Cancel", callback_data="reboot_cancel")
+    keyboard.add(yes_btn, no_btn)
+    bot.reply_to(message, "⚠️ **WARNING:** Are you sure you want to REBOOT the MikroTik router?", parse_mode="Markdown", reply_markup=keyboard)
+@bot.message_handler(commands=['add'])
+def add_user_cmd(message):
+    if message.chat.id != TELEGRAM_CHAT_ID: return
+    args = message.text.split()
+    if len(args) < 3:
+        bot.reply_to(message, "Usage: `/add <phone> <package>`\nPackages: `15_days_40_tk` or `30_days_100_tk`", parse_mode="Markdown")
+        return
+    phone = sanitize_username(args[1])
+    package = args[2]
+    if package not in ("15_days_40_tk", "30_days_100_tk"):
+        bot.reply_to(message, "Invalid package. Use `15_days_40_tk` or `30_days_100_tk`", parse_mode="Markdown")
+        return
+    username = phone
+    password = ''.join(secrets.choice(string.digits) for _ in range(6))
+    # Store directly in DB
+    now = datetime.datetime.now(datetime.timezone.utc)
+    expiration_days = 15 if package == "15_days_40_tk" else 30
+    expiration_time = now + datetime.timedelta(days=expiration_days)
+    user_data = {
+        "username": username,
+        "phone": phone,
+        "package": package,
+        "password": password,
+        "screenshot_url": "manual_add",
+        "registration_timestamp": now.isoformat(),
+        "approved": True,
+        "approval_timestamp": now.isoformat(),
+        "expiration_timestamp": expiration_time.isoformat(),
+        "telegram_message_id": 0
+    }
+    try:
+        supabase.table('users').insert(user_data).execute()
+        # Add to MikroTik
+        if mikrotik.add_hotspot_user(username, password, package) and mikrotik.enable_hotspot_user(username):
+            text = (
+                f"✅ **User Manually Created & Approved!**\n\n"
+                f"👤 **Username:** `{username}`\n"
+                f"🔑 **Password:** `{password}`\n"
+                f"📦 **Package:** `{package}`\n"
+                f"⏳ **Expires:** {expiration_time.strftime('%Y-%m-%d')}"
+            )
+            bot.reply_to(message, text, parse_mode="Markdown")
+        else:
+            bot.reply_to(message, "⚠️ Added to DB, but failed to create in MikroTik router!")
+    except Exception as e:
+        bot.reply_to(message, f"Database error: {e}")
 @bot.callback_query_handler(func=lambda call: True)
 def callback_query(call):
     try:
@@ -483,6 +616,16 @@ def callback_query(call):
             bot.answer_callback_query(call.id, "You are not authorized to perform this action.")
             return
 
+        if call.data == "reboot_confirm":
+            bot.edit_message_text("🔄 Rebooting MikroTik router...", chat_id=call.message.chat.id, message_id=call.message.message_id)
+            if mikrotik.reboot_router():
+                bot.send_message(TELEGRAM_CHAT_ID, "✅ Reboot command sent successfully!")
+            else:
+                bot.send_message(TELEGRAM_CHAT_ID, "⚠️ Failed to send reboot command.")
+            return
+        if call.data == "reboot_cancel":
+            bot.edit_message_text("❌ Reboot cancelled.", chat_id=call.message.chat.id, message_id=call.message.message_id)
+            return
         # Safe split — handle malformed callback data
         if '_' not in call.data:
             bot.answer_callback_query(call.id, "Invalid action.")
