@@ -675,9 +675,6 @@ def add_user_cmd(message):
             bot.reply_to(message, "⚠️ Added to DB, but failed to create in MikroTik router!")
     except Exception as e:
         bot.reply_to(message, f"Database error: {e}")
-@bot.callback_query_handler(func=lambda call: True)
-def callback_query(call):
-    try:
 @bot.message_handler(commands=['setlimit'])
 def set_limit_cmd(message):
     if message.chat.id != TELEGRAM_CHAT_ID: return
@@ -697,6 +694,9 @@ def sync_cmd(message):
     bot.reply_to(message, "⚙️ Syncing router configurations...")
     result = mikrotik.sync_initial_setup()
     bot.reply_to(message, f"**Sync Result:**\n{result}", parse_mode="Markdown")
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    try:
         if call.from_user.id != TELEGRAM_CHAT_ID:
             bot.answer_callback_query(call.id, "You are not authorized to perform this action.")
             return
