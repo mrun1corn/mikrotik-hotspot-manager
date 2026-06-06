@@ -489,8 +489,8 @@ def status_dashboard():
     # 3. Check Supabase
     db_status = "Unknown"
     try:
-        res = supabase.table('users').select('username', count='exact').limit(1).execute()
-        db_status = f"Connected ✅ (Total users: {res.count})"
+        res = supabase.table('users').select('username').limit(1).execute()
+        db_status = f"Connected ✅"
     except Exception as e:
         db_status = f"Error: {e} ❌"
     html = f"""
