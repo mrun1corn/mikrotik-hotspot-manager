@@ -756,6 +756,15 @@ def callback_query(call):
             bot.answer_callback_query(call.id, "You are not authorized to perform this action.")
             return
 
+        if call.data.startswith("custom_"):
+            profile_name = call.data[7:]
+            bot.edit_message_text(
+                f"✏️ **To set a custom limit for `{profile_name}`**, simply copy and paste the command below into the chat, and change the `3M/3M` to your desired speed:\n\n`/setlimit {profile_name} 3M/3M`",
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                parse_mode="Markdown"
+            )
+            return
         if call.data == "reboot_confirm":
             bot.edit_message_text("🔄 Rebooting MikroTik router...", chat_id=call.message.chat.id, message_id=call.message.message_id)
             if mikrotik.reboot_router():
@@ -775,6 +784,7 @@ def callback_query(call):
             speeds = ["1M/1M", "2M/2M", "3M/3M", "5M/5M", "10M/10M"]
             buttons = [types.InlineKeyboardButton(s, callback_data=f"spd_{profile_name}_{s}") for s in speeds]
             keyboard.add(*buttons)
+            keyboard.add(types.InlineKeyboardButton("✏️ Custom Limit", callback_data=f"custom_{profile_name}"))
             keyboard.add(types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_pkg"))
             bot.edit_message_text(f"🚀 **Select new speed limit for `{profile_name}`:**", 
                                   chat_id=call.message.chat.id, 
