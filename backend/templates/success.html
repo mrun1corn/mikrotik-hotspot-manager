@@ -335,9 +335,19 @@
             <span>Download Credentials</span>
             <span class="spinner"></span>
         </a>
-        <p style="margin-top: 24px; font-size: 14px; opacity: 0.7;">
-            Please wait for admin approval to use these credentials on the hotspot.
-        </p>
+        {% if auto_approved %}
+            <div style="margin-top: 20px; padding: 12px; background: rgba(40, 167, 69, 0.12); border: 1px solid #28a745; border-radius: 6px; color: #28a745; font-weight: bold; font-size: 14px;">
+                ✅ Payment Verified! Your Wi-Fi account is active right now.
+            </div>
+            <a href="http://wifi.local/login" class="download-btn" style="background-color: #28a745; margin-top: 15px; text-decoration: none;">
+                <span class="icon icon-check"></span>
+                <span>Connect to Wi-Fi Now</span>
+            </a>
+        {% else %}
+            <p style="margin-top: 24px; font-size: 14px; opacity: 0.7;">
+                Please wait for admin approval to use these credentials on the hotspot.
+            </p>
+        {% endif %}
         <div class="footer-copyright">
             Copyright &copy; mrun1corn
         </div>

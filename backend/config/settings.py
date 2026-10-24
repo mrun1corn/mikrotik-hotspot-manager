@@ -26,6 +26,10 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
 TELEGRAM_CHAT_ID = int(os.getenv('TELEGRAM_CHAT_ID', 0))
 TELEGRAM_WEBHOOK_SECRET = os.getenv('TELEGRAM_WEBHOOK_SECRET', '')
 
+
+# --- UddoktaPay / Paymently Gateway ---
+UDDOKTAPAY_API_KEY = os.getenv('UDDOKTAPAY_API_KEY', '')
+UDDOKTAPAY_API_URL = os.getenv('UDDOKTAPAY_API_URL', '')
 # --- Security & Deployment ---
 CRON_SECRET = os.getenv('CRON_SECRET', '')
 SECRET_KEY = os.getenv('SECRET_KEY') or CRON_SECRET or SUPABASE_KEY or 'default-hotspot-secret-salt'

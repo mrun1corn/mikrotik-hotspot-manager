@@ -5,11 +5,13 @@ try:
     from backend.routes.web import web_bp
     from backend.routes.webhook import webhook_bp
     from backend.routes.cron import cron_bp
+    from backend.routes.payment import payment_bp
 except ImportError:
     from config import TEMPLATES_DIR, logger
     from routes.web import web_bp
     from routes.webhook import webhook_bp
     from routes.cron import cron_bp
+    from routes.payment import payment_bp
 
 def create_app():
     """Application factory for Flask with Vercel serverless compatibility."""
@@ -19,6 +21,7 @@ def create_app():
     app.register_blueprint(web_bp)
     app.register_blueprint(webhook_bp)
     app.register_blueprint(cron_bp)
+    app.register_blueprint(payment_bp)
 
     # --- Global Error Handlers ---
     @app.errorhandler(404)

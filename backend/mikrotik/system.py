@@ -68,7 +68,12 @@ class RouterSystemManager:
             # 2. Walled Garden
             wg = api.get_resource('/ip/hotspot/walled-garden')
             existing_wg = [w.get('dst-host') for w in wg.get() if 'dst-host' in w]
-            domains = ['mikrotik-hotspot-manager-one.vercel.app', '*.supabase.co', '*.bkash.com', 'bkash.com', '*.pay.bka.sh', 'pay.bka.sh']
+            domains = [
+                'mikrotik-hotspot-manager-one.vercel.app', '*.supabase.co',
+                'rob1n.paymently.io', '*.paymently.io',
+                '*.bkash.com', 'bkash.com', '*.pay.bka.sh', 'pay.bka.sh',
+                '*.nagad.com.bd', '*.upay.systems', '*.dutchbanglabank.com', '*.sslcommerz.com'
+            ]
             for d in domains:
                 if d not in existing_wg:
                     wg.add(dst_host=d, action='allow')
