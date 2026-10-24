@@ -167,40 +167,40 @@ def payment_webhook():
     approval_time = datetime.datetime.now(datetime.timezone.utc)
     expiration_time = approval_time + datetime.timedelta(days=expiration_days)
 
-    # 1. Activate on MikroTik Router immediately
-    mt_created = mikrotik.add_hotspot_user(username, password or user_data["password"], package_id)
-    mt_enabled = mikrotik.enable_hotspot_user(username)
+    # 1. Create user on MikroTik in DISABLED state (disabled='yes' until admin verifies)
+    mikrotik.add_hotspot_user(username, password or user_data["password"], package_id)
 
-    if not (mt_created and mt_enabled):
-        logger.error(f"Failed to create/enable user {username} on MikroTik upon payment")
-        notify_admin_error("uddoktapay/mikrotik", f"Payment completed for {username} but MikroTik activation failed!")
-
-    # 2. Update Database Record
+    # 2. Update Database Record with payment TrxID (pending verification)
     db.update_user(username, {
-        "approved": True,
-        "approval_timestamp": approval_time.isoformat(),
-        "expiration_timestamp": expiration_time.isoformat(),
+        "approved": False,
         "screenshot_url": f"paymently:{trx_id}"
     })
 
-    # 3. Notify Admin via Telegram
+    # 3. Notify Admin via Telegram with Approve / Reject buttons for verification
     if TELEGRAM_CHAT_ID:
         text = (
-            f"💰 **Automated Payment Received!**\n\n"
+            f"💳 **New Payment Received!**\n\n"
             f"👤 **User:** `{username}`\n"
             f"📞 **Phone:** `{phone or user_data.get('phone')}`\n"
             f"💵 **Amount:** `{amount} BDT` ({method.upper()})\n"
             f"🆔 **TrxID:** `{trx_id}`\n"
-            f"📦 **Package:** `{pkg['name']}`\n"
-            f"⏳ **Expires:** `{expiration_time.strftime('%Y-%m-%d')}`\n\n"
-            f"✅ **Account automatically created & activated on router!**"
+            f"📦 **Package:** `{pkg['name']}`\n\n"
+            f"⚠️ **Status: Pending Your Verification**\n"
+            f"Verify your bKash/Nagad statement and click below to activate:"
+        )
+        from telebot import types
+        keyboard = types.InlineKeyboardMarkup()
+        keyboard.add(
+            types.InlineKeyboardButton("✅ Approve & Activate", callback_data=f"approve_{username}"),
+            types.InlineKeyboardButton("❌ Reject & Delete", callback_data=f"reject_{username}")
         )
         try:
-            bot.send_message(TELEGRAM_CHAT_ID, text, parse_mode="Markdown")
+            msg = bot.send_message(TELEGRAM_CHAT_ID, text, parse_mode="Markdown", reply_markup=keyboard)
+            db.update_user(username, {"telegram_message_id": msg.message_id})
         except Exception as e:
             logger.error(f"Telegram notification failed for payment {username}: {e}")
 
-    return jsonify({"status": True, "message": "User activated successfully"}), 200
+    return jsonify({"status": True, "message": "Payment recorded, awaiting admin approval"}), 200
 
 @payment_bp.route('/payment/success', methods=['GET'])
 def payment_success():
@@ -234,7 +234,8 @@ def payment_success():
         username=username,
         password=user_data['password'],
         download_link=download_link,
-        auto_approved=True
+        auto_approved=False,
+        trx_id=verify_data.get('transaction_id', 'Verified')
     )
 
 @payment_bp.route('/payment/cancel', methods=['GET'])

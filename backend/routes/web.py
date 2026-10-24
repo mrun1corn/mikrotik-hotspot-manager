@@ -318,3 +318,17 @@ def status_dashboard():
     </html>
     """
     return html
+
+@web_bp.route('/api/user/status/<username>', methods=['GET'])
+def user_approval_status(username):
+    username = sanitize_username(username)
+    if not username:
+        return {"approved": False, "status": "INVALID"}, 400
+    user = db.get_user_by_username(username)
+    if not user:
+        return {"approved": False, "status": "NOT_FOUND"}, 404
+    return {
+        "username": username,
+        "approved": bool(user.get("approved")),
+        "status": "APPROVED" if user.get("approved") else "PENDING"
+    }, 200

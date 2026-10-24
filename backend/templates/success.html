@@ -10,25 +10,24 @@
             --bg-color: #0f172a;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
-            --card-bg: rgba(30, 41, 59, 0.7);
+            --panel-bg: #1e293b;
+            --panel-inner: #0f172a;
             --card-border: rgba(255, 255, 255, 0.1);
-            --ticket-bg: #1e293b;
-            --ticket-inner: #0f172a;
             --primary: #3b82f6;
             --primary-glow: rgba(59, 130, 246, 0.35);
             --success: #10b981;
-            --success-glow: rgba(16, 185, 129, 0.3);
-            --accent: #e2136e; /* bKash pink accent */
+            --success-glow: rgba(16, 185, 129, 0.35);
+            --warning: #f59e0b;
+            --warning-glow: rgba(245, 158, 11, 0.35);
         }
 
         body.light-mode {
             --bg-color: #f1f5f9;
             --text-main: #0f172a;
             --text-muted: #64748b;
-            --card-bg: rgba(255, 255, 255, 0.9);
+            --panel-bg: #ffffff;
+            --panel-inner: #f8fafc;
             --card-border: rgba(0, 0, 0, 0.08);
-            --ticket-bg: #ffffff;
-            --ticket-inner: #f8fafc;
             --primary: #2563eb;
             --primary-glow: rgba(37, 99, 235, 0.2);
             --success: #059669;
@@ -74,50 +73,43 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* --- Success Hero Header --- */
+        /* Hero */
         .hero {
             text-align: center;
-            padding: 10px 0 6px;
+            padding: 4px 0 2px;
         }
 
-        .success-badge {
-            width: 72px;
-            height: 72px;
-            background: var(--success);
+        .hero-badge {
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 14px;
-            box-shadow: 0 0 30px var(--success-glow);
-            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-bottom: 12px;
+            font-size: 32px;
+            transition: all 0.5s ease;
         }
 
-        @keyframes bounceIn {
-            0% { transform: scale(0); opacity: 0; }
-            60% { transform: scale(1.15); opacity: 1; }
+        .hero-badge.pending {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            box-shadow: 0 0 25px var(--warning-glow);
+        }
+
+        .hero-badge.approved {
+            background: linear-gradient(135deg, #10b981, #059669);
+            box-shadow: 0 0 30px var(--success-glow);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); }
+            50% { transform: scale(1.15); }
             100% { transform: scale(1); }
         }
 
-        .success-badge svg {
-            width: 38px;
-            height: 38px;
-            stroke: #ffffff;
-            stroke-width: 3;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            fill: none;
-            stroke-dasharray: 50;
-            stroke-dashoffset: 50;
-            animation: checkDraw 0.6s ease-out 0.3s forwards;
-        }
-
-        @keyframes checkDraw {
-            to { stroke-dashoffset: 0; }
-        }
-
         .hero h1 {
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 800;
             letter-spacing: -0.02em;
             margin-bottom: 6px;
@@ -125,14 +117,66 @@
         }
 
         .hero p {
-            font-size: 14px;
+            font-size: 13px;
             color: var(--text-muted);
             line-height: 1.4;
         }
 
-        /* --- Digital Ticket Pass Card --- */
+        /* Status Callout Banner */
+        .status-callout {
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            text-align: left;
+            transition: all 0.4s ease;
+        }
+
+        .status-callout.pending {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: #f59e0b;
+        }
+
+        .status-callout.approved {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            color: var(--success);
+            animation: glowPulse 2s infinite;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { box-shadow: 0 0 10px rgba(16, 185, 129, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.4); }
+        }
+
+        .callout-icon {
+            font-size: 22px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .callout-body {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .callout-title {
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .callout-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Digital Ticket Card */
         .ticket-card {
-            background: var(--ticket-bg);
+            background: var(--panel-bg);
             border-radius: 16px;
             border: 1px solid var(--card-border);
             box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
@@ -153,31 +197,49 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.05em;
             color: var(--primary);
         }
 
-        .live-status {
+        .live-status-pill {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             padding: 4px 10px;
             border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .live-status-pill.pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .live-status-pill.approved {
             background: rgba(16, 185, 129, 0.15);
             color: var(--success);
             border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .live-dot {
+        .status-dot {
             width: 7px;
             height: 7px;
-            background: var(--success);
             border-radius: 50%;
+        }
+
+        .status-dot.pending {
+            background: #f59e0b;
+            animation: pulseDot 1.5s infinite;
+        }
+
+        .status-dot.approved {
+            background: var(--success);
             box-shadow: 0 0 8px var(--success);
             animation: pulseDot 1.5s infinite;
         }
@@ -191,23 +253,17 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 12px;
         }
 
-        /* Credential Boxes */
         .credential-field {
-            background: var(--ticket-inner);
+            background: var(--panel-inner);
             border: 1px solid var(--card-border);
             border-radius: 12px;
             padding: 12px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: border-color 0.2s;
-        }
-
-        .credential-field:hover {
-            border-color: var(--primary);
         }
 
         .field-info {
@@ -226,7 +282,7 @@
 
         .field-value {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 19px;
+            font-size: 18px;
             font-weight: 700;
             color: var(--text-main);
             letter-spacing: 0.04em;
@@ -244,24 +300,20 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
+            flex-shrink: 0;
         }
 
         .action-icon-btn:hover {
             background: var(--primary);
             color: #fff;
-            transform: scale(1.05);
         }
 
-        .action-icon-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* QR Code Card Section */
+        /* QR Code Card */
         .qr-section {
-            background: var(--ticket-inner);
+            background: var(--panel-inner);
             border-radius: 12px;
             border: 1px solid var(--card-border);
-            padding: 14px;
+            padding: 12px;
             display: flex;
             align-items: center;
             gap: 14px;
@@ -284,7 +336,7 @@
         .qr-text {
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
             text-align: left;
         }
 
@@ -297,15 +349,14 @@
         .qr-desc {
             font-size: 11px;
             color: var(--text-muted);
-            line-height: 1.4;
+            line-height: 1.35;
         }
 
-        /* --- Quick Action Buttons --- */
+        /* Primary Action Buttons */
         .actions-group {
             display: flex;
             flex-direction: column;
             gap: 10px;
-            margin-top: 4px;
         }
 
         .btn-connect {
@@ -327,13 +378,11 @@
             width: 100%;
         }
 
-        .btn-connect:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px var(--success-glow);
-        }
-
-        .btn-connect:active {
-            transform: translateY(0);
+        .btn-connect:disabled {
+            background: #64748b;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.7;
         }
 
         .btn-secondary-row {
@@ -363,51 +412,6 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
-        /* --- How to connect pills --- */
-        .instructions {
-            background: rgba(255, 255, 255, 0.02);
-            border-radius: 12px;
-            padding: 14px 16px;
-            border: 1px solid var(--card-border);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            text-align: left;
-        }
-
-        .inst-title {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: var(--text-muted);
-            margin-bottom: 2px;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.4;
-        }
-
-        .step-num {
-            width: 18px;
-            height: 18px;
-            background: var(--primary);
-            color: #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 10px;
-            font-weight: 700;
-            flex-shrink: 0;
-            margin-top: 1px;
-        }
-
         .theme-toggle-btn {
             position: fixed;
             top: 16px;
@@ -415,7 +419,7 @@
             width: 38px;
             height: 38px;
             border-radius: 50%;
-            background: var(--ticket-bg);
+            background: var(--panel-bg);
             border: 1px solid var(--card-border);
             color: var(--text-main);
             font-size: 16px;
@@ -426,7 +430,7 @@
             z-index: 100;
         }
 
-        /* Toast notification */
+        /* Toast */
         .toast {
             position: fixed;
             bottom: 24px;
@@ -443,9 +447,6 @@
             opacity: 0;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             z-index: 1000;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
 
         .toast.show {
@@ -458,23 +459,41 @@
     <button class="theme-toggle-btn" id="themeBtn" title="Toggle Theme">💡</button>
 
     <div class="container">
-        <!-- Hero Confirmation -->
+        <!-- Hero Header -->
         <div class="hero">
-            <div class="success-badge">
-                <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+            <div class="hero-badge {% if auto_approved %}approved{% else %}pending{% endif %}" id="heroBadge">
+                {% if auto_approved %}✅{% else %}⏳{% endif %}
             </div>
-            <h1>Payment Verified!</h1>
-            <p>Your Wi-Fi package is now activated. Use the voucher credentials below to get online.</p>
+            <h1 id="heroTitle">
+                {% if auto_approved %}Account Active & Verified!{% else %}Payment Received — Verifying{% endif %}
+            </h1>
+            <p id="heroSubtitle">
+                {% if auto_approved %}Your Wi-Fi package is active. Click Connect below.{% else %}Admin is verifying your transaction. Your account will activate automatically in 2-5 minutes.{% endif %}
+            </p>
         </div>
 
-        <!-- Digital Ticket Card -->
+        <!-- Live Status Callout Banner -->
+        <div class="status-callout {% if auto_approved %}approved{% else %}pending{% endif %}" id="statusCallout">
+            <span class="callout-icon" id="calloutIcon">{% if auto_approved %}🎉{% else %}⏳{% endif %}</span>
+            <div class="callout-body">
+                <span class="callout-title" id="calloutTitle">
+                    {% if auto_approved %}Ready to Connect!{% else %}Verification in Progress{% endif %}
+                </span>
+                <span class="callout-desc" id="calloutDesc">
+                    {% if auto_approved %}Your account is active on the hotspot router right now.{% else %}Keep this page open. As soon as admin approves, your phone will alert you and connect!{% endif %}
+                </span>
+            </div>
+        </div>
+
+        <!-- Digital Ticket Pass Card -->
         <div class="ticket-card">
             <div class="ticket-header">
                 <div class="ticket-brand">
                     <span>📶</span> Hotspot Voucher Pass
                 </div>
-                <div class="live-status">
-                    <span class="live-dot"></span> Active Now
+                <div class="live-status-pill {% if auto_approved %}approved{% else %}pending{% endif %}" id="statusPill">
+                    <span class="status-dot {% if auto_approved %}approved{% else %}pending{% endif %}" id="statusDot"></span> 
+                    <span id="statusText">{% if auto_approved %}Active Now{% else %}Pending Approval{% endif %}</span>
                 </div>
             </div>
 
@@ -501,25 +520,24 @@
                     </button>
                 </div>
 
-                <!-- On-Screen QR Code for instant second-device or camera connection -->
+                <!-- QR Code on Screen -->
                 <div class="qr-section">
                     <div class="qr-canvas-wrap">
-                        <canvas id="qrCanvas" width="80" height="80"></canvas>
+                        <canvas id="qrCanvas" width="76" height="76"></canvas>
                     </div>
                     <div class="qr-text">
                         <span class="qr-title">Instant Scan Pass</span>
-                        <span class="qr-desc">Scan with another phone or laptop camera to copy credentials instantly.</span>
+                        <span class="qr-desc">Scan with another phone or laptop camera to copy credentials immediately.</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Primary Connect Actions -->
+        <!-- Action Buttons -->
         <div class="actions-group">
-            <!-- 1-Click Instant Login (posts to router login handler) -->
-            <button class="btn-connect" onclick="autoLoginRouter()">
+            <button class="btn-connect" id="btnConnect" onclick="autoLoginRouter()" {% if not auto_approved %}disabled{% endif %}>
                 <span>🚀</span>
-                <span>Connect to Wi-Fi Now</span>
+                <span id="btnConnectLabel">{% if auto_approved %}Connect to Wi-Fi Now{% else %}Waiting for Admin Approval...{% endif %}</span>
             </button>
 
             <div class="btn-secondary-row">
@@ -533,26 +551,9 @@
                 </a>
             </div>
         </div>
-
-        <!-- 3 Simple Steps Guide -->
-        <div class="instructions">
-            <span class="inst-title">How to browse:</span>
-            <div class="step-item">
-                <span class="step-num">1</span>
-                <span>Click <strong>Connect to Wi-Fi Now</strong> to log in automatically.</span>
-            </div>
-            <div class="step-item">
-                <span class="step-num">2</span>
-                <span>If prompted on the Wi-Fi popup, paste your <strong>Username</strong> and <strong>Password</strong>.</span>
-            </div>
-            <div class="step-item">
-                <span class="step-num">3</span>
-                <span>Enjoy fast, uninterrupted internet access!</span>
-            </div>
-        </div>
     </div>
 
-    <!-- Hidden Form for MikroTik Auto-Login -->
+    <!-- Hidden Router Login Form -->
     <form id="hotspotLoginForm" action="http://192.168.10.1/login" method="post" style="display:none;">
         <input type="hidden" name="username" value="{{ username }}">
         <input type="hidden" name="password" value="{{ password }}">
@@ -561,60 +562,139 @@
 
     <!-- Toast Notification -->
     <div class="toast" id="toast">
-        <span>✅</span>
         <span id="toastMsg">Copied!</span>
     </div>
 
-    <!-- QR Code Generator script -->
+    <!-- QR Code Script -->
     <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <script>
-        // Generate QR code on canvas
+        // Render QR Code on canvas
         try {
             new QRious({
                 element: document.getElementById('qrCanvas'),
                 value: 'USER:{{ username }};PASS:{{ password }}',
-                size: 80,
+                size: 76,
                 background: 'white',
                 foreground: 'black'
             });
-        } catch(e) {
-            console.log('QR code display fallback');
+        } catch(e) {}
+
+        // --- REAL-TIME APPROVAL POLLING & NOTIFICATION ---
+        let isApproved = {% if auto_approved %}true{% else %}false{% endif %};
+
+        function playApprovalChime() {
+            try {
+                // Synthesize pleasant two-tone chime via Web Audio API
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const now = ctx.currentTime;
+                
+                const osc1 = ctx.createOscillator();
+                const gain1 = ctx.createGain();
+                osc1.type = 'sine';
+                osc1.frequency.setValueAtTime(587.33, now); // D5
+                gain1.gain.setValueAtTime(0.3, now);
+                gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+                osc1.connect(gain1);
+                gain1.connect(ctx.destination);
+                osc1.start(now);
+                osc1.stop(now + 0.5);
+
+                const osc2 = ctx.createOscillator();
+                const gain2 = ctx.createGain();
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(880.00, now + 0.15); // A5
+                gain2.gain.setValueAtTime(0.35, now + 0.15);
+                gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.8);
+                osc2.connect(gain2);
+                gain2.connect(ctx.destination);
+                osc2.start(now + 0.15);
+                osc2.stop(now + 0.8);
+            } catch(e) {}
+
+            // Vibrate phone
+            if (navigator.vibrate) {
+                navigator.vibrate([120, 80, 200]);
+            }
         }
 
-        // Auto-login to MikroTik router handler
+        function triggerApprovedState() {
+            if (isApproved) return;
+            isApproved = true;
+
+            playApprovalChime();
+
+            // Transform UI to Approved
+            document.getElementById('heroBadge').className = 'hero-badge approved';
+            document.getElementById('heroBadge').innerText = '✅';
+            document.getElementById('heroTitle').innerText = 'Account Approved & Active!';
+            document.getElementById('heroSubtitle').innerText = 'Admin verified your payment. Connecting you to Wi-Fi now...';
+
+            const callout = document.getElementById('statusCallout');
+            callout.className = 'status-callout approved';
+            document.getElementById('calloutIcon').innerText = '🎉';
+            document.getElementById('calloutTitle').innerText = 'Payment Verified!';
+            document.getElementById('calloutDesc').innerText = 'Your Wi-Fi account has been activated on the router.';
+
+            const pill = document.getElementById('statusPill');
+            pill.className = 'live-status-pill approved';
+            document.getElementById('statusDot').className = 'status-dot approved';
+            document.getElementById('statusText').innerText = 'Active Now';
+
+            const btn = document.getElementById('btnConnect');
+            btn.disabled = false;
+            document.getElementById('btnConnectLabel').innerText = 'Connect to Wi-Fi Now';
+
+            showToast('🎉 Approved! Connecting to Wi-Fi...');
+
+            // Auto-login after 1.5 seconds
+            setTimeout(autoLoginRouter, 1500);
+        }
+
+        // Poll for admin approval if not already approved
+        if (!isApproved) {
+            const pollApproval = () => {
+                if (isApproved) return;
+                fetch('/api/user/status/{{ username }}')
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.approved) {
+                            triggerApprovedState();
+                        } else {
+                            setTimeout(pollApproval, 3000);
+                        }
+                    })
+                    .catch(() => {
+                        setTimeout(pollApproval, 4000);
+                    });
+            };
+            setTimeout(pollApproval, 2500);
+        }
+
+        // Auto-login to MikroTik captive portal
         function autoLoginRouter() {
             showToast('Logging into Wi-Fi router...');
-            // Attempt standard router captive portal submission
             try {
-                // Try form submit to 192.168.10.1
-                const form = document.getElementById('hotspotLoginForm');
-                form.submit();
+                document.getElementById('hotspotLoginForm').submit();
             } catch(e) {
-                // Fallback to GET redirect
                 window.location.href = "http://192.168.10.1/login?username={{ username }}&password={{ password }}";
             }
         }
 
-        // Copy single value
+        // Copy utilities
         function copyValue(id, name) {
             const val = document.getElementById(id).innerText.trim();
             navigator.clipboard.writeText(val).then(() => {
-                showToast(`${name} copied to clipboard!`);
-            }).catch(() => {
-                fallbackCopy(val, name);
-            });
+                showToast(`${name} copied!`);
+            }).catch(() => fallbackCopy(val, name));
         }
 
-        // Copy both credentials together
         function copyBoth() {
             const u = document.getElementById('valUsername').innerText.trim();
             const p = document.getElementById('valPassword').innerText.trim();
-            const combined = `Hotspot Credentials\nUsername: ${u}\nPassword: ${p}`;
-            navigator.clipboard.writeText(combined).then(() => {
+            const text = `Hotspot Credentials\nUsername: ${u}\nPassword: ${p}`;
+            navigator.clipboard.writeText(text).then(() => {
                 showToast('Username & Password copied!');
-            }).catch(() => {
-                fallbackCopy(combined, 'Credentials');
-            });
+            }).catch(() => fallbackCopy(text, 'Credentials'));
         }
 
         function fallbackCopy(text, name) {
@@ -633,7 +713,7 @@
             const t = document.getElementById('toast');
             document.getElementById('toastMsg').innerText = msg;
             t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2200);
+            setTimeout(() => t.classList.remove('show'), 2400);
         }
 
         // Theme Toggle
