@@ -49,55 +49,44 @@ def register():
                 message_type="error"
             ), 429
 
-        phone = request.form.get('phone', '').strip()
+        raw_phone = request.form.get('phone', '').strip()
         package = request.form.get('package', '').strip()
+        trx_id = request.form.get('trx_id', '').strip()
         screenshot = request.files.get('screenshot')
 
-        if not phone or not package or not screenshot:
-            return render_template('register.html', message="All fields are required!", message_type="error")
+        import re
+        digits = re.sub(r'[^0-9]', '', raw_phone)
+        if digits.startswith('880') and len(digits) == 13:
+            phone = digits[2:]
+        elif len(digits) == 10 and digits.startswith('1'):
+            phone = '0' + digits
+        else:
+            phone = digits
 
-        if not phone.isdigit() or len(phone) < 10:
-            return render_template('register.html', message="Invalid phone number.", message_type="error")
+        if not phone or len(phone) != 11 or not phone.startswith('01'):
+            return render_template('register.html', message="Please enter a valid 11-digit phone number.", message_type="error")
 
         if package not in ("15_days_40_tk", "30_days_100_tk"):
             return render_template('register.html', message="Invalid package selected.", message_type="error")
 
-        screenshot_bytes = screenshot.read()
-        is_valid_img, img_err = verify_image_file(screenshot_bytes)
-        if not is_valid_img:
-            return render_template('register.html', message=img_err, message_type="error")
+        screenshot_url = f"trx:{trx_id}" if trx_id else "manual_submission"
+        if screenshot and screenshot.filename:
+            screenshot_bytes = screenshot.read()
+            is_valid_img, img_err = verify_image_file(screenshot_bytes)
+            if not is_valid_img:
+                return render_template('register.html', message=img_err, message_type="error")
 
-        base_username = phone
-        username = base_username
-        suffix = 0
-        try:
-            while True:
-                existing = db.get_user_by_username(username)
-                if not existing:
-                    break
-                suffix += 1
-                username = f"{base_username}_{suffix}"
-                if suffix > 100:
-                    return render_template('register.html', message="Too many registrations for this phone number.", message_type="error")
-        except Exception as e:
-            logger.error(f"DB error checking username uniqueness: {e}")
-            return render_template('register.html', message="Database error. Please try again.", message_type="error")
-
-        password = ''.join(secrets.choice(string.digits) for _ in range(6))
-
-        screenshot_filename = f"{username}_{int(time.time())}_{sanitize_username(screenshot.filename or 'screenshot.png')}"
-        try:
-            screenshot_url = db.upload_screenshot(
-                filename=screenshot_filename,
-                file_bytes=screenshot_bytes,
-                content_type=screenshot.content_type
-            )
-            if not screenshot_url:
-                raise ValueError("Failed to get public screenshot URL")
-        except Exception as e:
-            logger.error(f"Screenshot upload failed: {e}")
-            return render_template('register.html', message="Error processing payment screenshot.", message_type="error")
-
+            screenshot_filename = f"{phone}_{int(time.time())}_{sanitize_username(screenshot.filename or 'screenshot.png')}"
+            try:
+                uploaded = db.upload_screenshot(
+                    filename=screenshot_filename,
+                    file_bytes=screenshot_bytes,
+                    content_type=screenshot.content_type
+                )
+                if uploaded:
+                    screenshot_url = uploaded
+            except Exception as e:
+                logger.error(f"Screenshot upload failed: {e}")
         now_str = datetime.datetime.now(datetime.timezone.utc).isoformat()
         user_data = {
             "username": username,
@@ -119,22 +108,30 @@ def register():
             db.delete_screenshot(screenshot_url)
             return render_template('register.html', message="Database error.", message_type="error")
 
-        # Telegram notification
+        # Pre-create user on router in disabled state
+        mikrotik.add_hotspot_user(username, password, package)
+
+        # Telegram notification with interactive Approve / Reject buttons
         caption = (
-            f"New user registration request:\n"
-            f"Phone: {phone}\n"
-            f"Package: {package.replace('_', ' ').title()}\n"
-            f"Username: {username}\n"
-            f"Password: {password}"
+            f"📋 **New Registration Request!**\n\n"
+            f"👤 **User:** `{username}`\n"
+            f"📞 **Phone:** `{phone}`\n"
+            f"📦 **Package:** `{package.replace('_', ' ').title()}`\n"
+            f"🆔 **Payment:** `{trx_id or 'Direct Submission'}`\n"
+            f"🔑 **Password:** `{password}`\n\n"
+            f"Tap Approve below to activate:"
         )
         keyboard = types.InlineKeyboardMarkup()
         keyboard.add(
-            types.InlineKeyboardButton("Approve", callback_data=f"approve_{username}"),
-            types.InlineKeyboardButton("Reject", callback_data=f"reject_{username}")
+            types.InlineKeyboardButton("✅ Approve & Activate", callback_data=f"approve_{username}"),
+            types.InlineKeyboardButton("❌ Reject & Delete", callback_data=f"reject_{username}")
         )
 
         try:
-            message = bot.send_photo(TELEGRAM_CHAT_ID, screenshot_url, caption=caption, reply_markup=keyboard)
+            if screenshot_url.startswith("http"):
+                message = bot.send_photo(TELEGRAM_CHAT_ID, screenshot_url, caption=caption, reply_markup=keyboard)
+            else:
+                message = bot.send_message(TELEGRAM_CHAT_ID, caption, parse_mode="Markdown", reply_markup=keyboard)
             db.update_user(username, {"telegram_message_id": message.message_id})
         except Exception as e:
             logger.error(f"Telegram notification failed for '{username}': {e}")
@@ -148,7 +145,9 @@ def register():
             'success.html',
             username=username,
             password=password,
-            download_link=download_link
+            download_link=download_link,
+            auto_approved=False,
+            trx_id=trx_id or 'Verification Pending'
         )
 
     return render_template('register.html')
@@ -332,57 +331,3 @@ def user_approval_status(username):
         "approved": bool(user.get("approved")),
         "status": "APPROVED" if user.get("approved") else "PENDING"
     }, 200
-
-@web_bp.route('/api/admin/reset-test', methods=['GET', 'POST'])
-def reset_test_user():
-    phone = request.args.get('phone', '01716708463')
-    username = sanitize_username(phone)
-    
-    # Clean from DB and router
-    for u in [username, f"{username}_1"]:
-        try:
-            db.delete_user(u)
-        except Exception:
-            pass
-        try:
-            mikrotik.delete_hotspot_user(u)
-            mikrotik.kick_user(u)
-        except Exception:
-            pass
-
-    now = datetime.datetime.now(datetime.timezone.utc)
-    user_data = {
-        "username": username,
-        "phone": username,
-        "package": "15_days_40_tk",
-        "password": "PIN",
-        "screenshot_url": "paymently:TEST_MANUAL",
-        "registration_timestamp": now.isoformat(),
-        "approved": False,
-        "approval_timestamp": None,
-        "expiration_timestamp": None,
-        "telegram_message_id": None
-    }
-    db.insert_user(user_data)
-    mikrotik.add_hotspot_user(username, "PIN", "15_days_40_tk")
-
-    text = (
-        f"💳 **New Payment Received! (Test)**\n\n"
-        f"👤 **User:** `{username}`\n"
-        f"📞 **Phone:** `{username}`\n"
-        f"💵 **Amount:** `40.00 BDT` (BKASH)\n"
-        f"🆔 **TrxID:** `TRX_TEST_APPROVAL`\n"
-        f"📦 **Package:** `15 Days - 40 TK`\n\n"
-        f"⚠️ **Status: Pending Your Verification**\n"
-        f"Tap Approve below to test instant router activation on your device:"
-    )
-    keyboard = types.InlineKeyboardMarkup()
-    keyboard.add(
-        types.InlineKeyboardButton("✅ Approve & Activate", callback_data=f"approve_{username}"),
-        types.InlineKeyboardButton("❌ Reject & Delete", callback_data=f"reject_{username}")
-    )
-    if TELEGRAM_CHAT_ID:
-        msg = bot.send_message(TELEGRAM_CHAT_ID, text, parse_mode="Markdown", reply_markup=keyboard)
-        db.update_user(username, {"telegram_message_id": msg.message_id})
-
-    return {"status": "success", "message": f"User {username} reset to unapproved and notification sent to Telegram!"}, 200

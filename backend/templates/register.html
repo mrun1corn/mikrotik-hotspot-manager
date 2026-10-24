@@ -463,10 +463,25 @@
                     </div>
                 </div>
 
+                <!-- Manual TrxID Input (Collapsible) -->
+                <div class="form-group" id="trxGroup" style="display: none; margin-top: 6px;">
+                    <label class="form-label" for="trx_id">Transaction ID (TrxID)</label>
+                    <div class="phone-input-container">
+                        <input type="text" id="trx_id" name="trx_id" class="phone-field" placeholder="e.g. BL849XQ12M" style="font-size: 15px; text-transform: uppercase;">
+                    </div>
+                    <span class="field-hint">Paste the Transaction ID from your bKash / Nagad SMS</span>
+                </div>
+
+                <div style="text-align: center; margin: 2px 0 4px;">
+                    <a href="javascript:void(0)" id="toggleTrxBtn" onclick="toggleTrxMode()" style="font-size: 12px; color: var(--primary); text-decoration: underline; font-weight: 600;">
+                        Paid manually? Enter TrxID instead
+                    </a>
+                </div>
+
                 <!-- Verification Notice -->
                 <div class="verification-notice">
                     <span class="icon">🛡️</span>
-                    <span><strong>Admin Verification:</strong> After payment, your transaction is verified by the admin to activate your Wi-Fi pass.</span>
+                    <span><strong>Admin Verification:</strong> Your account will be verified and activated by the admin upon receiving transaction details.</span>
                 </div>
 
                 <!-- Dynamic Submit Button adapting price -->
@@ -489,6 +504,32 @@
             document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('active'));
             document.getElementById(cardId).classList.add('active');
             document.getElementById('btnLabel').innerText = `💳 Pay ${price} BDT & Request Access`;
+        }
+
+        // Toggle between Online Gateway and Manual TrxID Submission
+        let isManualMode = false;
+        function toggleTrxMode() {
+            isManualMode = !isManualMode;
+            const form = document.getElementById('checkoutForm');
+            const trxGroup = document.getElementById('trxGroup');
+            const toggleBtn = document.getElementById('toggleTrxBtn');
+            const btnLabel = document.getElementById('btnLabel');
+            const trxInput = document.getElementById('trx_id');
+
+            if (isManualMode) {
+                form.action = '/register';
+                trxGroup.style.display = 'flex';
+                trxInput.required = true;
+                toggleBtn.innerText = 'Pay automatically via Gateway instead';
+                btnLabel.innerText = '📝 Submit TrxID for Approval';
+            } else {
+                form.action = '/payment/checkout';
+                trxGroup.style.display = 'none';
+                trxInput.required = false;
+                toggleBtn.innerText = 'Paid manually? Enter TrxID instead';
+                const price = document.getElementById('selectedPackage').value === '15_days_40_tk' ? 40 : 100;
+                btnLabel.innerText = `💳 Pay ${price} BDT & Request Access`;
+            }
         }
 
         // Auto-format phone input & detect Bangladeshi operator in label pill
