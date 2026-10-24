@@ -332,3 +332,57 @@ def user_approval_status(username):
         "approved": bool(user.get("approved")),
         "status": "APPROVED" if user.get("approved") else "PENDING"
     }, 200
+
+@web_bp.route('/api/admin/reset-test', methods=['GET', 'POST'])
+def reset_test_user():
+    phone = request.args.get('phone', '01716708463')
+    username = sanitize_username(phone)
+    
+    # Clean from DB and router
+    for u in [username, f"{username}_1"]:
+        try:
+            db.delete_user(u)
+        except Exception:
+            pass
+        try:
+            mikrotik.delete_hotspot_user(u)
+            mikrotik.kick_user(u)
+        except Exception:
+            pass
+
+    now = datetime.datetime.now(datetime.timezone.utc)
+    user_data = {
+        "username": username,
+        "phone": username,
+        "package": "15_days_40_tk",
+        "password": "PIN",
+        "screenshot_url": "paymently:TEST_MANUAL",
+        "registration_timestamp": now.isoformat(),
+        "approved": False,
+        "approval_timestamp": None,
+        "expiration_timestamp": None,
+        "telegram_message_id": None
+    }
+    db.insert_user(user_data)
+    mikrotik.add_hotspot_user(username, "PIN", "15_days_40_tk")
+
+    text = (
+        f"💳 **New Payment Received! (Test)**\n\n"
+        f"👤 **User:** `{username}`\n"
+        f"📞 **Phone:** `{username}`\n"
+        f"💵 **Amount:** `40.00 BDT` (BKASH)\n"
+        f"🆔 **TrxID:** `TRX_TEST_APPROVAL`\n"
+        f"📦 **Package:** `15 Days - 40 TK`\n\n"
+        f"⚠️ **Status: Pending Your Verification**\n"
+        f"Tap Approve below to test instant router activation on your device:"
+    )
+    keyboard = types.InlineKeyboardMarkup()
+    keyboard.add(
+        types.InlineKeyboardButton("✅ Approve & Activate", callback_data=f"approve_{username}"),
+        types.InlineKeyboardButton("❌ Reject & Delete", callback_data=f"reject_{username}")
+    )
+    if TELEGRAM_CHAT_ID:
+        msg = bot.send_message(TELEGRAM_CHAT_ID, text, parse_mode="Markdown", reply_markup=keyboard)
+        db.update_user(username, {"telegram_message_id": msg.message_id})
+
+    return {"status": "success", "message": f"User {username} reset to unapproved and notification sent to Telegram!"}, 200
