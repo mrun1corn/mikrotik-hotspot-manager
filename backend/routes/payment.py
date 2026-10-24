@@ -27,15 +27,21 @@ def checkout():
             message_type="error"
         ), 429
 
-    phone = request.form.get('phone', '').strip()
+    raw_phone = request.form.get('phone', '').strip()
     package_id = request.form.get('package', '').strip()
 
-    if not phone or not package_id:
-        return render_template('register.html', message="Phone number and package are required!", message_type="error")
+    # Normalize phone: remove spaces, dashes, country code
+    import re
+    digits = re.sub(r'[^0-9]', '', raw_phone)
+    if digits.startswith('880') and len(digits) == 13:
+        phone = digits[2:]
+    elif len(digits) == 10 and digits.startswith('1'):
+        phone = '0' + digits
+    else:
+        phone = digits
 
-    if not phone.isdigit() or len(phone) < 10:
-        return render_template('register.html', message="Invalid phone number format.", message_type="error")
-
+    if not phone or len(phone) != 11 or not phone.startswith('01'):
+        return render_template('register.html', message="Please enter a valid 11-digit phone number (e.g., 017XXXXXXXX).", message_type="error")
     pkg = PACKAGES.get(package_id)
     if not pkg:
         return render_template('register.html', message="Selected package is invalid.", message_type="error")

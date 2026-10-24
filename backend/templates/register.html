@@ -150,39 +150,60 @@
             gap: 6px;
         }
 
-        .input-wrap {
-            position: relative;
+        .phone-input-container {
             display: flex;
             align-items: center;
-        }
-
-        .input-icon {
-            position: absolute;
-            left: 14px;
-            color: var(--text-muted);
-            font-size: 16px;
-            pointer-events: none;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 14px 14px 14px 42px;
             background: var(--panel-inner);
             border: 1px solid var(--card-border);
             border-radius: 12px;
-            color: var(--text-main);
-            font-size: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            font-weight: 600;
-            outline: none;
+            overflow: hidden;
             transition: all 0.2s ease;
         }
 
-        .form-input:focus {
+        .phone-input-container:focus-within {
             border-color: var(--primary);
             box-shadow: 0 0 0 3px var(--primary-glow);
         }
 
+        .country-prefix {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 14px 12px 14px 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-right: 1px solid var(--card-border);
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .phone-field {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 14px 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--text-main);
+            outline: none;
+            width: 100%;
+        }
+
+        .operator-badge {
+            padding: 3px 8px;
+            margin-right: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 6px;
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--primary);
+            display: none;
+            flex-shrink: 0;
+            text-transform: uppercase;
+        }
         /* Interactive Package Selection Cards */
         .packages-grid {
             display: grid;
@@ -380,12 +401,16 @@
             {% endif %}
 
             <form action="/payment/checkout" method="post" id="checkoutForm">
-                <!-- Phone Number -->
+                <!-- Phone Number with Prefix and Operator Detection -->
                 <div class="form-group">
-                    <label class="form-label" for="phone">Phone Number</label>
-                    <div class="input-wrap">
-                        <span class="input-icon">📱</span>
-                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="017XXXXXXXX" pattern="01[3-9][0-9]{8}" maxlength="11" required autocomplete="tel">
+                    <label class="form-label" for="phone">Phone Number (bKash / Nagad)</label>
+                    <div class="phone-input-container">
+                        <div class="country-prefix">
+                            <span>🇧🇩</span>
+                            <span>+88</span>
+                        </div>
+                        <input type="tel" id="phone" name="phone" class="phone-field" placeholder="017XXXXXXXX" inputmode="numeric" maxlength="11" required autocomplete="tel-national">
+                        <span class="operator-badge" id="opBadge">GP</span>
                     </div>
                 </div>
 
@@ -442,6 +467,36 @@
             // Update button label dynamically to reflect exact selected package amount
             document.getElementById('btnLabel').innerText = `💳 Pay ${price} BDT & Connect Now`;
         }
+
+        // Auto-format phone input & detect Bangladeshi operator
+        const phoneInput = document.getElementById('phone');
+        const opBadge = document.getElementById('opBadge');
+        phoneInput.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/[^0-9]/g, '');
+            if (val.startsWith('880')) val = val.substring(2);
+            if (val.length > 0 && !val.startsWith('0')) val = '0' + val;
+            if (val.length > 11) val = val.substring(0, 11);
+            e.target.value = val;
+
+            if (val.length >= 3) {
+                const p = val.substring(0, 3);
+                let op = '';
+                if (p === '017' || p === '013') op = 'Grameenphone';
+                else if (p === '018') op = 'Robi';
+                else if (p === '019' || p === '014') op = 'Banglalink';
+                else if (p === '016') op = 'Airtel';
+                else if (p === '015') op = 'Teletalk';
+
+                if (op) {
+                    opBadge.innerText = op;
+                    opBadge.style.display = 'inline-block';
+                } else {
+                    opBadge.style.display = 'none';
+                }
+            } else {
+                opBadge.style.display = 'none';
+            }
+        });
 
         // Form Submit Loading State
         const form = document.getElementById('checkoutForm');
