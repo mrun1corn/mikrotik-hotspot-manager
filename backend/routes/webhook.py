@@ -1,16 +1,17 @@
 import hmac
-from flask import Blueprint, request
+import datetime
+from flask import Blueprint, request, jsonify
 from telebot import types
 
 try:
     from backend.config import (
-        TELEGRAM_WEBHOOK_SECRET, CRON_SECRET, APP_URL, logger
+        TELEGRAM_WEBHOOK_SECRET, CRON_SECRET, APP_URL, TELEGRAM_CHAT_ID, logger
     )
     from backend.bot import bot
     from backend.security import require_admin_auth
 except ImportError:
     from config import (
-        TELEGRAM_WEBHOOK_SECRET, CRON_SECRET, APP_URL, logger
+        TELEGRAM_WEBHOOK_SECRET, CRON_SECRET, APP_URL, TELEGRAM_CHAT_ID, logger
     )
     from bot import bot
     from security import require_admin_auth
@@ -57,3 +58,28 @@ def setup_webhook():
     except Exception as e:
         logger.error(f"Webhook setup failed: {e}")
         return f"Webhook setup error: {e}", 500
+
+@webhook_bp.route('/api/notify/login', methods=['GET', 'POST'])
+def notify_hotspot_login():
+    """Triggered by MikroTik router on-login script when a user connects to Wi-Fi."""
+    user = request.args.get('user') or request.form.get('user', 'Unknown')
+    ip = request.args.get('ip') or request.form.get('ip', 'Unknown')
+    mac = request.args.get('mac') or request.form.get('mac', 'Unknown')
+
+    logger.info(f"Hotspot user connected: user={user}, ip={ip}, mac={mac}")
+
+    if TELEGRAM_CHAT_ID:
+        text = (
+            f"📶 **Hotspot User Connected!**\n\n"
+            f"👤 **User:** `{user}`\n"
+            f"🌐 **IP Address:** `{ip}`\n"
+            f"📱 **Device MAC:** `{mac}`\n"
+            f"🕒 **Time:** `{datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}`\n\n"
+            f"🟢 Active internet session started."
+        )
+        try:
+            bot.send_message(TELEGRAM_CHAT_ID, text, parse_mode="Markdown")
+        except Exception as e:
+            logger.error(f"Failed to send Telegram login notification: {e}")
+
+    return jsonify({"status": True, "message": "Login notification sent"}), 200
