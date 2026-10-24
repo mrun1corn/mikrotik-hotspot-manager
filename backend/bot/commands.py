@@ -8,10 +8,10 @@ from backend.config.settings import (
     TELEGRAM_CHAT_ID, SUPABASE_URL, SUPABASE_KEY, logger
 )
 from backend.bot.instance import bot
-from backend.bot.keyboards import get_admin_keyboard, get_reboot_keyboard
+from backend.bot.keyboards import get_admin_keyboard, get_reboot_keyboard, get_user_actions_keyboard
 from backend.mikrotik import mikrotik
 from backend.database import db
-from backend.security import sanitize_username
+from backend.security import sanitize_username, parse_isoformat
 
 def register_command_handlers():
     @bot.message_handler(commands=['start'])
@@ -26,20 +26,28 @@ def register_command_handlers():
         if message.chat.id != TELEGRAM_CHAT_ID:
             return
         text = (
-            "🛠 **Available Commands:**\n\n"
-            "/start - Check bot authorization\n"
-            "/status - View system & router status\n"
-            "/logs - View recent sensitive security & login logs\n"
-            "/active - View currently connected users\n"
-            "/users - List all active/approved users\n"
+            "🛠 **Admin Command Center:**\n\n"
+            "📊 **Monitoring & Reports:**\n"
+            "/status - Router & database health\n"
+            "/sales - Today, monthly & total revenue\n"
+            "/traffic - Real-time WAN download/upload speed\n"
+            "/active - Live connected user sessions\n"
+            "/logs - Sensitive router & security audit logs\n\n"
+            "👥 **User & Voucher Management:**\n"
+            "/find `<phone/user>` - Lookup user details, expiry & live status\n"
+            "/extend `<user>` `<days>` - Add days to user expiration\n"
+            "/add `<phone>` `<package>` - Create & approve user instantly\n"
+            "/users - List all active users & expiries\n"
             "/pending - List users awaiting approval\n"
-            "/packages - Edit package speeds with interactive buttons\n"
-            "/add `<phone>` `<package>` - Instantly create and approve a user\n"
-            "/sync - Initialize a fresh router with packages & walled garden\n"
-            "/kick `<username>` - Disconnect an active user session\n"
-            "/delete `<username>` - Completely remove a user\n"
-            "/reboot - Restart the MikroTik router\n"
-            "/help - Show this message"
+            "/kick `<user>` - Disconnect live session\n"
+            "/delete `<user>` - Permanently delete user\n\n"
+            "🛡️ **Security & System Control:**\n"
+            "/blocked - View currently blacklisted IPs\n"
+            "/unblock `<ip>` - Remove IP from firewall blacklist\n"
+            "/packages - View & edit profile speed limits\n"
+            "/sync - Re-sync router packages & walled-garden\n"
+            "/reboot - Reboot the MikroTik router\n"
+            "/help - Show this guide"
         )
         bot.reply_to(message, text, parse_mode="Markdown")
 
@@ -276,6 +284,282 @@ def register_command_handlers():
         bot.reply_to(message, "⚙️ Syncing router configurations...")
         result = mikrotik.sync_initial_setup()
         bot.reply_to(message, f"**Sync Result:**\n{result}", parse_mode="Markdown")
+
+    @bot.message_handler(commands=['sales', 'revenue'])
+    def sales_report_cmd(message):
+        if message.chat.id != TELEGRAM_CHAT_ID:
+            return
+        msg = bot.reply_to(message, "⏳ Calculating sales & revenue report...")
+        try:
+            users = db.get_all_users()
+            today_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d")
+            month_str = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m")
+
+            today_rev = 0
+            today_count = 0
+            month_rev = 0
+            month_count = 0
+            total_rev = 0
+            total_approved = 0
+            pkg_counts = {"15_days_40_tk": 0, "30_days_100_tk": 0}
+
+            for u in users:
+                if u.get('approved'):
+                    total_approved += 1
+                    pkg = u.get('package', '')
+                    price = 40 if pkg == "15_days_40_tk" else 100
+                    total_rev += price
+                    if pkg in pkg_counts:
+                        pkg_counts[pkg] += 1
+
+                    app_time = u.get('approval_timestamp', '') or ''
+                    if app_time.startswith(today_str):
+                        today_rev += price
+                        today_count += 1
+                    if app_time.startswith(month_str):
+                        month_rev += price
+                        month_count += 1
+
+            text = (
+                f"💰 **Hotspot Sales & Revenue Report**\n\n"
+                f"📅 **Today ({today_str}):**\n"
+                f"• Revenue: **{today_rev} BDT** ({today_count} purchases)\n\n"
+                f"🗓️ **This Month ({month_str}):**\n"
+                f"• Revenue: **{month_rev} BDT** ({month_count} purchases)\n\n"
+                f"💎 **All-Time Total:**\n"
+                f"• Total Revenue: **{total_rev} BDT**\n"
+                f"• Active Customers: **{total_approved}**\n\n"
+                f"📦 **Packages Breakdown:**\n"
+                f"• 15 Days (40 TK): `{pkg_counts['15_days_40_tk']}` sold\n"
+                f"• 30 Days (100 TK): `{pkg_counts['30_days_100_tk']}` sold"
+            )
+            bot.edit_message_text(text, chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
+        except Exception as e:
+            bot.edit_message_text(f"⚠️ Error generating sales report: {e}", chat_id=message.chat.id, message_id=msg.message_id)
+
+    @bot.message_handler(commands=['traffic', 'speed', 'bandwidth'])
+    def traffic_monitor_cmd(message):
+        if message.chat.id != TELEGRAM_CHAT_ID:
+            return
+        msg = bot.reply_to(message, "⏳ Reading live interface traffic...")
+        pool = mikrotik.connect()
+        if not pool:
+            bot.edit_message_text("⚠️ Could not connect to MikroTik router.", chat_id=message.chat.id, message_id=msg.message_id)
+            return
+        try:
+            api = pool.get_api()
+            res = api.get_resource('/interface').call('monitor-traffic', {'interface': 'ACL_WAN', 'once': ''})
+            if not res:
+                bot.edit_message_text("⚠️ Could not read traffic on interface ACL_WAN.", chat_id=message.chat.id, message_id=msg.message_id)
+                return
+            props = res[0]
+            rx_bps = int(props.get('rx-bits-per-second', 0))
+            tx_bps = int(props.get('tx-bits-per-second', 0))
+
+            def fmt_speed(bps):
+                if bps >= 1000000:
+                    return f"{bps / 1000000:.2f} Mbps"
+                elif bps >= 1000:
+                    return f"{bps / 1000:.1f} Kbps"
+                return f"{bps} bps"
+
+            active = api.get_resource('/ip/hotspot/active').get()
+            active_count = len(active) if active else 0
+
+            text = (
+                f"📈 **Live WAN Bandwidth Monitor**\n\n"
+                f"🌐 **Interface:** `ACL_WAN`\n"
+                f"📥 **Download (Rx):** `{fmt_speed(rx_bps)}`\n"
+                f"📤 **Upload (Tx):** `{fmt_speed(tx_bps)}`\n"
+                f"👥 **Connected Users Right Now:** `{active_count}`"
+            )
+            bot.edit_message_text(text, chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
+        except Exception as e:
+            bot.edit_message_text(f"⚠️ Error reading live bandwidth: {e}", chat_id=message.chat.id, message_id=msg.message_id)
+        finally:
+            pool.disconnect()
+
+    @bot.message_handler(commands=['blocked', 'blacklist'])
+    def blocked_ips_cmd(message):
+        if message.chat.id != TELEGRAM_CHAT_ID:
+            return
+        msg = bot.reply_to(message, "⏳ Fetching firewall blacklist from router...")
+        pool = mikrotik.connect()
+        if not pool:
+            bot.edit_message_text("⚠️ Could not connect to MikroTik router.", chat_id=message.chat.id, message_id=msg.message_id)
+            return
+        try:
+            api = pool.get_api()
+            addr_resource = api.get_resource('/ip/firewall/address-list')
+            temp_list = addr_resource.get(list='login-blocked')
+            perm_list = addr_resource.get(list='login-perm-blocked')
+
+            text = "🛡️ **Firewall Blacklisted IPs**\n\n"
+            if temp_list:
+                text += "⏱️ **Temporary (1-Hour Ban):**\n"
+                for item in temp_list:
+                    ip = item.get('address')
+                    timeout = item.get('timeout', '1h')
+                    text += f"• `{ip}` (Expires: {timeout})\n"
+                text += "\n"
+            else:
+                text += "⏱️ No temporary 1-hour bans active.\n\n"
+
+            if perm_list:
+                text += "🔒 **Permanent (Botnet/Repeat Bans):**\n"
+                for item in perm_list:
+                    ip = item.get('address')
+                    comment = item.get('comment', 'Botnet')
+                    text += f"• `{ip}` — _{comment}_\n"
+            else:
+                text += "🔒 No permanent bans active.\n"
+
+            text += "\n✏️ _To unblock an IP, use:_ `/unblock <ip>`"
+            bot.edit_message_text(text, chat_id=message.chat.id, message_id=msg.message_id, parse_mode="Markdown")
+        except Exception as e:
+            bot.edit_message_text(f"⚠️ Error reading blacklist: {e}", chat_id=message.chat.id, message_id=msg.message_id)
+        finally:
+            pool.disconnect()
+
+    @bot.message_handler(commands=['unblock'])
+    def unblock_ip_cmd(message):
+        if message.chat.id != TELEGRAM_CHAT_ID:
+            return
+        args = message.text.split()
+        if len(args) < 2:
+            bot.reply_to(message, "Usage: `/unblock <ip_address>`", parse_mode="Markdown")
+            return
+        ip = args[1].strip()
+        pool = mikrotik.connect()
+        if not pool:
+            bot.reply_to(message, "⚠️ Could not connect to MikroTik router.")
+            return
+        try:
+            api = pool.get_api()
+            addr_resource = api.get_resource('/ip/firewall/address-list')
+            found = False
+            for item in addr_resource.get(address=ip):
+                if item.get('list') in ('login-blocked', 'login-perm-blocked'):
+                    addr_resource.remove(id=item.get('id'))
+                    found = True
+            if found:
+                bot.reply_to(message, f"✅ Successfully unblocked `{ip}` from router firewall.", parse_mode="Markdown")
+            else:
+                bot.reply_to(message, f"ℹ️ IP `{ip}` was not found in the blacklist.", parse_mode="Markdown")
+        except Exception as e:
+            bot.reply_to(message, f"⚠️ Error unblocking IP: {e}")
+        finally:
+            pool.disconnect()
+
+    @bot.message_handler(commands=['find', 'search', 'user'])
+    def find_user_cmd(message):
+        if message.chat.id != TELEGRAM_CHAT_ID:
+            return
+        args = message.text.split()
+        if len(args) < 2:
+            bot.reply_to(message, "Usage: `/find <phone_or_username>`", parse_mode="Markdown")
+            return
+        query = sanitize_username(args[1].strip())
+        try:
+            user = db.get_user_by_username(query)
+            if not user:
+                # Check if searched by phone
+                all_u = db.get_all_users()
+                for u in all_u:
+                    if u.get('phone') == query:
+                        user = u
+                        break
+            if not user:
+                bot.reply_to(message, f"🔍 No user found for `{query}`.", parse_mode="Markdown")
+                return
+
+            username = user.get('username')
+            phone = user.get('phone')
+            password = user.get('password')
+            pkg = user.get('package', 'N/A')
+            approved = "Approved ✅" if user.get('approved') else "Pending Approval ⏳"
+
+            exp_str = "Not set"
+            days_left = ""
+            if user.get('expiration_timestamp'):
+                exp_time = parse_isoformat(user.get('expiration_timestamp'))
+                if exp_time:
+                    exp_str = exp_time.strftime('%Y-%m-%d %H:%M')
+                    diff = (exp_time - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
+                    if diff > 0:
+                        days = int(diff // 86400)
+                        hours = int((diff % 86400) // 3600)
+                        days_left = f"({days}d {hours}h remaining)"
+                    else:
+                        days_left = "(Expired ❌)"
+
+            # Check if online on router
+            online_status = "Offline ⚪"
+            active_sessions = mikrotik.get_active_users()
+            for s in active_sessions:
+                if s.get('user') == username:
+                    online_status = f"Online 🟢 (IP: {s.get('address')}, Uptime: {s.get('uptime')})"
+                    break
+
+            text = (
+                f"👤 **Customer Profile: `{username}`**\n\n"
+                f"📱 **Phone:** `{phone}`\n"
+                f"🔑 **Password:** `{password}`\n"
+                f"📦 **Package:** `{pkg}`\n"
+                f"🚦 **Status:** {approved}\n"
+                f"⏳ **Expires:** `{exp_str}` {days_left}\n"
+                f"📶 **Live Session:** {online_status}"
+            )
+            bot.reply_to(message, text, parse_mode="Markdown", reply_markup=get_user_actions_keyboard(username))
+        except Exception as e:
+            bot.reply_to(message, f"Database error: {e}")
+
+    @bot.message_handler(commands=['extend'])
+    def extend_user_cmd(message):
+        if message.chat.id != TELEGRAM_CHAT_ID:
+            return
+        args = message.text.split()
+        if len(args) < 3:
+            bot.reply_to(message, "Usage: `/extend <username> <days>`\nExample: `/extend 01712345678 15`", parse_mode="Markdown")
+            return
+        username = sanitize_username(args[1].strip())
+        try:
+            days = int(args[2].strip())
+        except ValueError:
+            bot.reply_to(message, "Days must be a positive number.")
+            return
+
+        user = db.get_user_by_username(username)
+        if not user:
+            bot.reply_to(message, f"User `{username}` not found.", parse_mode="Markdown")
+            return
+
+        current_exp = parse_isoformat(user.get('expiration_timestamp'))
+        now = datetime.datetime.now(datetime.timezone.utc)
+        base_time = current_exp if (current_exp and current_exp > now) else now
+        new_exp = base_time + datetime.timedelta(days=days)
+
+        db.update_user(username, {
+            "approved": True,
+            "expiration_timestamp": new_exp.isoformat()
+        })
+        # Ensure user enabled on router
+        mikrotik.enable_hotspot_user(username)
+        bot.reply_to(
+            message,
+            f"✅ Extended `{username}` by **{days} days**.\n⏳ **New Expiration:** `{new_exp.strftime('%Y-%m-%d')}`",
+            parse_mode="Markdown"
+        )
+
+    # --- Extended Button Handlers ---
+    @bot.message_handler(func=lambda m: m.text == "💰 Sales Report")
+    def text_sales(m): sales_report_cmd(m)
+
+    @bot.message_handler(func=lambda m: m.text == "📈 Live Traffic")
+    def text_traffic(m): traffic_monitor_cmd(m)
+
+    @bot.message_handler(func=lambda m: m.text == "🛡️ Blocked IPs")
+    def text_blocked(m): blocked_ips_cmd(m)
 
     # --- Interactive Text Button Handlers ---
     @bot.message_handler(func=lambda m: m.text == "📊 System Status")

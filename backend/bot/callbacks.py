@@ -6,7 +6,7 @@ from backend.bot.instance import bot, notify_admin_error
 from backend.bot.keyboards import get_speed_keyboard
 from backend.mikrotik import mikrotik
 from backend.database import db
-from backend.security import sanitize_username
+from backend.security import sanitize_username, parse_isoformat
 
 def register_callback_handlers():
     @bot.callback_query_handler(func=lambda call: True)
@@ -76,6 +76,46 @@ def register_callback_handlers():
                             chat_id=call.message.chat.id, 
                             message_id=call.message.message_id, parse_mode="Markdown"
                         )
+                return
+
+            if call.data.startswith("actkick_"):
+                user = sanitize_username(call.data[8:])
+                if mikrotik.kick_user(user):
+                    bot.answer_callback_query(call.id, f"Kicked {user}")
+                    bot.send_message(TELEGRAM_CHAT_ID, f"👢 Kicked active session for `{user}`.", parse_mode="Markdown")
+                else:
+                    bot.answer_callback_query(call.id, "Session not found")
+                return
+
+            if call.data.startswith("actdel_"):
+                user = sanitize_username(call.data[7:])
+                db.delete_user(user)
+                mikrotik.delete_hotspot_user(user)
+                bot.answer_callback_query(call.id, f"Deleted {user}")
+                bot.send_message(TELEGRAM_CHAT_ID, f"🗑 User `{user}` deleted from DB and router.", parse_mode="Markdown")
+                return
+
+            if call.data.startswith("actext_"):
+                parts = call.data.split('_')
+                if len(parts) >= 3:
+                    try:
+                        days = int(parts[1])
+                        user = sanitize_username('_'.join(parts[2:]))
+                        u_data = db.get_user_by_username(user)
+                        if u_data:
+                            current_exp = parse_isoformat(u_data.get('expiration_timestamp'))
+                            now = datetime.datetime.now(datetime.timezone.utc)
+                            base_time = current_exp if (current_exp and current_exp > now) else now
+                            new_exp = base_time + datetime.timedelta(days=days)
+                            db.update_user(user, {"approved": True, "expiration_timestamp": new_exp.isoformat()})
+                            mikrotik.enable_hotspot_user(user)
+                            bot.answer_callback_query(call.id, f"Extended +{days} days")
+                            bot.send_message(TELEGRAM_CHAT_ID, f"⏳ Extended `{user}` by **+{days} days**.\nExpires: `{new_exp.strftime('%Y-%m-%d')}`", parse_mode="Markdown")
+                        else:
+                            bot.answer_callback_query(call.id, "User not found")
+                    except Exception as e:
+                        logger.error(f"Extend error: {e}")
+                        bot.answer_callback_query(call.id, "Error extending user")
                 return
 
             if '_' not in call.data:

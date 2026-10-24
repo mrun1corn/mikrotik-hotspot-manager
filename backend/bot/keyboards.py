@@ -4,9 +4,12 @@ def get_admin_keyboard():
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(
         types.KeyboardButton("📊 System Status"),
-        types.KeyboardButton("🚨 Security Logs"),
-        types.KeyboardButton("📦 Manage Packages"),
+        types.KeyboardButton("💰 Sales Report"),
+        types.KeyboardButton("📈 Live Traffic"),
         types.KeyboardButton("👥 Active Users"),
+        types.KeyboardButton("🚨 Security Logs"),
+        types.KeyboardButton("🛡️ Blocked IPs"),
+        types.KeyboardButton("📦 Manage Packages"),
         types.KeyboardButton("⏳ Pending Approvals"),
         types.KeyboardButton("⚙️ Router Sync"),
         types.KeyboardButton("🔄 Reboot Router"),
@@ -37,4 +40,16 @@ def get_speed_keyboard(profile_name):
     keyboard.add(*buttons)
     keyboard.add(types.InlineKeyboardButton("✏️ Custom Limit", callback_data=f"custom_{profile_name}"))
     keyboard.add(types.InlineKeyboardButton("❌ Cancel", callback_data="cancel_pkg"))
+    return keyboard
+
+def get_user_actions_keyboard(username):
+    keyboard = types.InlineKeyboardMarkup(row_width=2)
+    keyboard.add(
+        types.InlineKeyboardButton("👢 Kick", callback_data=f"actkick_{username}"),
+        types.InlineKeyboardButton("🗑 Delete", callback_data=f"actdel_{username}")
+    )
+    keyboard.add(
+        types.InlineKeyboardButton("⏳ Extend +15d", callback_data=f"actext_15_{username}"),
+        types.InlineKeyboardButton("⏳ Extend +30d", callback_data=f"actext_30_{username}")
+    )
     return keyboard
