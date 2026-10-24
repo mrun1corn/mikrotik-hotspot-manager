@@ -20,6 +20,9 @@ class MikroTikController:
     def enable_hotspot_user(self, username):
         return self.users.enable_user(username)
 
+    def login_active_host(self, username, password):
+        return self.users.login_active_host(username, password)
+
     def delete_hotspot_user(self, username):
         return self.users.delete_user(username)
 

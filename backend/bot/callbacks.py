@@ -152,6 +152,9 @@ def register_callback_handlers():
                         "expiration_timestamp": expiration_time.isoformat()
                     })
 
+                    # Instantly authorize the connected device on the router so internet starts immediately
+                    mikrotik.login_active_host(username, user_data["password"])
+
                     bot.answer_callback_query(call.id, f"User {username} approved and enabled.")
                     try:
                         bot.edit_message_caption(

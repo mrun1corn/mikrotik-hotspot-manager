@@ -127,3 +127,31 @@ class HotspotUserManager:
             return []
         finally:
             pool.disconnect()
+
+    def login_active_host(self, username, password):
+        """Instantly authorizes/logs in connected hotspot host for this user so internet works immediately."""
+        pool = self.client.connect()
+        if not pool:
+            return False
+        try:
+            api = pool.get_api()
+            hosts = api.get_resource('/ip/hotspot/host').get(authorized=False)
+            for h in hosts:
+                ip = h.get('address')
+                if ip:
+                    try:
+                        api.get_resource('/ip/hotspot/active').call('login', {
+                            'user': username,
+                            'password': password,
+                            'ip': ip
+                        })
+                        logger.info(f"Instantly auto-logged in host {ip} for user '{username}'.")
+                        return True
+                    except Exception:
+                        pass
+            return False
+        except Exception as e:
+            logger.error(f"Error auto-logging in active host for '{username}': {e}")
+            return False
+        finally:
+            pool.disconnect()
