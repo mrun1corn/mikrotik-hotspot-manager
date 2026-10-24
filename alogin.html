@@ -1,262 +1,182 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>internet hotspot > redirect</title>
-$(if refresh-timeout)
-<meta http-equiv="refresh" content="$(refresh-timeout-secs)">
-$(endif)
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="pragma" content="no-cache" />
-<meta http-equiv="expires" content="-1" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style type="text/css">
-    :root {
-        --bg-color: #f0f2f5;
-        --text-color: #333;
-        --card-bg: #fff;
-        --border-color: #ddd;
-        --primary-color: #007bff;
-        --primary-hover: #0056b3;
-        --success-color: #28a745;
-        --success-hover: #218838;
-        --error-color: #dc3545;
-        --input-bg: #fdfbfb;
-        --input-border: #bbb;
-        --link-color: #007bff;
-        --link-hover: #0056b3;
-    }
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="expires" content="-1" />
+    $(if refresh-timeout)
+    <meta http-equiv="refresh" content="$(refresh-timeout-secs)">
+    $(endif)
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Hotspot Portal > Redirecting</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style type="text/css">
+        :root {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --panel-bg: #1e293b;
+            --card-border: rgba(255, 255, 255, 0.1);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.35);
+            --primary: #3b82f6;
+        }
 
-    body.dark-mode {
-        --bg-color: #2c2c2c;
-        --text-color: #e0e0e0;
-        --card-bg: #3c3c3c;
-        --border-color: #555;
-        --primary-color: #66aaff;
-        --primary-hover: #4488ee;
-        --success-color: #4CAF50;
-        --success-hover: #45a049;
-        --error-color: #ff6b6b;
-        --input-bg: #4a4a4a;
-        --input-border: #777;
-        --link-color: #66aaff;
-        --link-hover: #4488ee;
-    }
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --panel-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.08);
+            --primary: #2563eb;
+        }
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        transition: background-color 0.3s, color 0.3s;
-        box-sizing: border-box;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    .container {
-        background-color: var(--card-bg);
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-        max-width: 400px;
-        width: 100%;
-        text-align: center;
-        transition: background-color 0.3s, box-shadow 0.3s;
-    }
-
-    .logo {
-        margin-bottom: 20px;
-    }
-
-    .logo img {
-        max-width: 150px;
-        height: auto;
-    }
-
-    h1 {
-        color: var(--primary-color);
-        margin-bottom: 25px;
-        font-size: 24px;
-    }
-
-    form {
-        margin-top: 20px;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="submit"] {
-        width: calc(100% - 20px);
-        padding: 12px;
-        margin-bottom: 15px;
-        border: 1px solid var(--input-border);
-        border-radius: 5px;
-        font-size: 16px;
-        background-color: var(--input-bg);
-        color: var(--text-color);
-        transition: border-color 0.3s, background-color 0.3s, color 0.3s;
-    }
-
-    input[type="submit"] {
-        background-color: var(--primary-color);
-        color: white;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-
-    input[type="submit"]:hover {
-        background-color: var(--primary-hover);
-        transform: translateY(-2px);
-    }
-
-    .buy-package-btn {
-        display: inline-block;
-        padding: 12px 25px;
-        background-color: var(--success-color);
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        margin-top: 20px;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-
-    .buy-package-btn:hover {
-        background-color: var(--success-hover);
-        transform: translateY(-2px);
-    }
-
-    .notice {
-        font-size: 12px;
-        color: var(--text-color);
-        margin-top: 20px;
-    }
-
-    .notice a {
-        color: var(--link-color);
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-
-    .notice a:hover {
-        color: var(--link-hover);
-        text-decoration: underline;
-    }
-
-    .error-message {
-        color: var(--error-color);
-        font-weight: bold;
-        margin-top: 15px;
-    }
-
-    .theme-toggle {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 20px;
-        color: var(--text-color);
-        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .theme-toggle:hover {
-        transform: scale(1.1);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
         body {
-            padding: 10px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.2) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
         }
-        .container {
-            padding: 20px;
-            border-radius: 5px;
-        }
-        .theme-toggle {
-            top: 10px;
-            right: 10px;
-            width: 35px;
-            height: 35px;
-            font-size: 18px;
-        }
-    }
 
-    /* Alogin specific styles */
-    .alogin-message {
-        font-size: 18px;
-        margin-bottom: 20px;
-    }
-</style>
-<script language="JavaScript">
-<!--
-    function startClock() {
-        $(if popup == 'true')
-        open('$(link-status)', 'hotspot_status', 'toolbar=0,location=0,directories=0,status=0,menubars=0,resizable=1,width=290,height=200');
-	$(endif)
-	location.href = unescape('$(link-redirect-esc)');
-    }
-//-->
-</script>
+        .container {
+            width: 100%;
+            max-width: 420px;
+            margin: 0 auto;
+            text-align: center;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+            padding: 32px 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .success-badge {
+            width: 72px;
+            height: 72px;
+            background: var(--success);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--success-glow);
+            font-size: 34px;
+            color: #fff;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            letter-spacing: -0.02em;
+        }
+
+        p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .redirect-btn {
+            background: var(--primary);
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .theme-toggle-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--panel-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+        }
+    </style>
+    <script language="JavaScript">
+    <!--
+        function startClock() {
+            $(if popup == 'true')
+            open('$(link-status)', 'hotspot_status', 'toolbar=0,location=0,directories=0,status=0,menubars=0,resizable=1,width=290,height=200');
+            $(endif)
+            location.href = unescape('$(link-redirect-esc)');
+        }
+    //-->
+    </script>
 </head>
 <body onLoad="startClock()">
-<div class="theme-toggle" id="themeToggle">💡</div>
+    <button class="theme-toggle-btn" id="themeBtn" title="Toggle Theme">💡</button>
 
-<div class="container">
-    <div class="logo">
-        <div class="wifi-icon">📶</div>
+    <div class="container">
+        <div class="card">
+            <div class="success-badge">✅</div>
+            <h1>Connected Successfully!</h1>
+            <p>You are now logged in and granted full internet access.</p>
+            <p>Redirecting you to your destination...</p>
+            <a href="$(link-redirect)" class="redirect-btn">Click here if not redirected</a>
+        </div>
     </div>
-    <h1>Login Successful</h1>
 
-    <p class="alogin-message">You are logged in</p>
-    <p class="alogin-message">If nothing happens, click <a href="$(link-redirect)">here</a></p>
-
-    <div class="footer-copyright">
-        Copyright by mrun1corn
-    </div>
-</div>
-
-<script type="text/javascript">
-    // Theme Toggle Logic
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        body.classList.add(savedTheme);
-        themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '💡';
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        // Default to dark mode if OS preference is dark
-        body.classList.add('dark-mode');
-        localStorage.setItem('theme', 'dark-mode');
-        themeToggle.textContent = '☀️';
-    }
-
-    themeToggle.addEventListener('click', () => {
-        if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('theme', 'light-mode');
-            themeToggle.textContent = '💡';
-        } else {
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark-mode');
-            themeToggle.textContent = '☀️';
+    <script type="text/javascript">
+        const themeBtn = document.getElementById('themeBtn');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light-mode') {
+            document.body.classList.add('light-mode');
+            themeBtn.innerText = '🌙';
         }
-    });
-</script>
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeBtn.innerText = isLight ? '🌙' : '💡';
+            localStorage.setItem('theme', isLight ? 'light-mode' : 'dark-mode');
+        });
+    </script>
 </body>
 </html>

@@ -2,219 +2,347 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register for Hotspot Access</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>High-Speed Wi-Fi Registration & Checkout</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Variables for Theme */
         :root {
-            --bg-color: #f4f7fa;
-            --text-color: #2d3748;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --primary-color: #3b82f6;
-            --primary-hover: #2563eb;
-            --success-color: #22c55e;
-            --success-hover: #16a34a;
-            --error-color: #ef4444;
-            --input-bg: #f9fafb;
-            --input-border: #d1d5db;
-            --link-color: #3b82f6;
-            --link-hover: #2563eb;
-            --gradient-start-light: #dbeafe;
-            --gradient-end-light: #bfdbfe;
-            --gradient-start-dark: #1f2937;
-            --gradient-end-dark: #374151;
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --panel-bg: #1e293b;
+            --panel-inner: #0f172a;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.35);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --bkash-pink: #e2136e;
+            --bkash-glow: rgba(226, 19, 110, 0.35);
         }
 
-        body.dark-mode {
-            --bg-color: #1f2937;
-            --text-color: #d1d5db;
-            --card-bg: #374151;
-            --border-color: #4b5563;
-            --primary-color: #60a5fa;
-            --primary-hover: #3b82f6;
-            --success-color: #4ade80;
-            --success-hover: #22c55e;
-            --error-color: #f87171;
-            --input-bg: #4b5563;
-            --input-border: #6b7280;
-            --link-color: #60a5fa;
-            --link-hover: #3b82f6;
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --panel-bg: #ffffff;
+            --panel-inner: #f8fafc;
+            --primary: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.2);
+            --success: #059669;
+            --success-glow: rgba(5, 150, 105, 0.2);
         }
 
-        /* General Body Styling */
-        body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
-            background-image: linear-gradient(135deg, var(--gradient-start-light), var(--gradient-end-light));
-            color: var(--text-color);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
-            box-sizing: border-box;
+            padding: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.18) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(226, 19, 110, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
         }
 
-        body.dark-mode {
-            background-image: linear-gradient(135deg, var(--gradient-start-dark), var(--gradient-end-dark));
-        }
-
-        /* Container Styling */
         .container {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-            padding: 32px;
-            max-width: 480px;
             width: 100%;
-            text-align: center;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeIn 0.5s ease-out;
+            max-width: 440px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Logo/Icon Styling */
-        .logo {
-            margin-bottom: 24px;
+        /* Header */
+        .hero {
+            text-align: center;
+            padding: 6px 0 2px;
         }
 
-        .wifi-icon {
-            font-size: 64px;
-            color: var(--primary-color);
+        .wifi-badge {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 12px;
-            display: inline-block;
-            animation: pulse 2s infinite ease-in-out;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
-
-        /* Heading Styling */
-        h2 {
-            color: var(--primary-color);
-            margin-bottom: 28px;
+            box-shadow: 0 0 25px var(--primary-glow);
             font-size: 30px;
-            font-weight: 700;
-            letter-spacing: -0.025em;
         }
 
-        /* Form Styling */
-        form {
-            margin-top: 24px;
+        .hero h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* Card Form */
+        .card {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .alert-error {
+            padding: 12px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* Form Group */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
             text-align: left;
         }
 
-        label {
+        .form-label {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--text-color);
-            font-size: 14px;
+            gap: 6px;
         }
 
-        /* Input and Select Styling */
-        input[type="text"],
-        input[type="file"],
-        select {
-            width: 100%;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            border: 1px solid var(--input-border);
-            border-radius: 8px;
-            font-size: 16px;
-            background-color: var(--input-bg);
-            color: var(--text-color);
-            transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        input[type="text"]:focus,
-        select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-        }
-
-        select {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%236b7280'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 18px;
-        }
-
-        body.dark-mode select {
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d1d5db'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
-        }
-
-        input[type="file"] {
-            padding: 10px 16px;
-        }
-
-        input[type="file"]::-webkit-file-upload-button,
-        input[type="file"]::file-selector-button {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.3s ease;
-        }
-
-        input[type="file"]::-webkit-file-upload-button:hover,
-        input[type="file"]::file-selector-button:hover {
-            background-color: var(--primary-hover);
-        }
-
-        /* Button Styling */
-        button[type="submit"] {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 14px 24px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+        .input-wrap {
             position: relative;
+            display: flex;
+            align-items: center;
         }
 
-        button[type="submit"]:hover {
-            background-color: var(--primary-hover);
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 14px 14px 42px;
+            background: var(--panel-inner);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        /* Interactive Package Selection Cards */
+        .packages-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .pkg-card {
+            background: var(--panel-inner);
+            border: 2px solid var(--card-border);
+            border-radius: 12px;
+            padding: 14px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .pkg-card:hover {
+            border-color: rgba(59, 130, 246, 0.5);
             transform: translateY(-2px);
         }
 
-        button[type="submit"]:disabled {
-            background-color: #94a3b8;
+        .pkg-card.active {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.08);
+            box-shadow: 0 4px 16px var(--primary-glow);
+        }
+
+        .pkg-badge {
+            position: absolute;
+            top: -9px;
+            right: 8px;
+            background: var(--bkash-pink);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .pkg-duration {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .pkg-price {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        .pkg-price span {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .pkg-speed {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        /* Payment Feature Box */
+        .payment-perks {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            line-height: 1.4;
+        }
+
+        /* Primary Submit Button */
+        .btn-submit {
+            background: linear-gradient(135deg, #e2136e, #b80f58);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 16px;
+            border-radius: 12px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px var(--bkash-glow);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--bkash-glow);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            background: #94a3b8;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        /* Return to Hotspot Login link */
+        .return-link {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .return-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .return-link a:hover {
+            text-decoration: underline;
+        }
+
+        .theme-toggle-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--panel-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
         }
 
         .spinner {
             display: none;
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border: 2px solid #ffffff;
             border-top: 2px solid transparent;
             border-radius: 50%;
@@ -225,199 +353,117 @@
             to { transform: rotate(360deg); }
         }
 
-        button[type="submit"].loading .spinner {
+        .btn-submit.loading .spinner {
             display: inline-block;
         }
 
-        /* Message Styling */
-        .message {
-            text-align: center;
-            margin: 20px 0;
-            padding: 12px;
-            border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .error {
-            color: var(--error-color);
-            background-color: rgba(239, 68, 68, 0.1);
-            border: 1px solid var(--error-color);
-        }
-
-        .success {
-            color: var(--success-color);
-            background-color: rgba(34, 197, 94, 0.1);
-            border: 1px solid var(--success-color);
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle {
-            position: fixed;
-            top: 16px;
-            right: 16px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 22px;
-            color: var(--text-color);
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        /* Footer Copyright */
-        .footer-copyright {
-            margin-top: 28px;
-            font-size: 13px;
-            color: var(--text-color);
-            opacity: 0.7;
-        }
-
-        /* Icon Styling (Using SVG as mask-image) */
-        .icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
-            background-color: var(--text-color);
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-        }
-
-        .icon-phone {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.02l-2.2 2.2z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.02l-2.2 2.2z'/%3E%3C/svg%3E");
-        }
-
-        .icon-box {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 7h-4V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5zm2 11.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 9.5 12 9.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M20 7h-4V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 5h4v2h-4V5zm2 11.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 9.5 12 9.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/%3E%3C/svg%3E");
-        }
-
-        .icon-camera {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm7-12H5c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V6.5c0-1.66-1.34-3-3-3zm-1.5 1c.83 0 1.5.67 1.5 1.5S18.33 7 17.5 7 16 6.33 16 5.5s.67-1.5 1.5-1.5z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 15.5c-1.93 0-3.5-1.57-3.5-3.5S10.07 8.5 12 8.5s3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5zm7-12H5c-1.66 0-3 1.34-3 3v12c0 1.66 1.34 3 3 3h14c1.66 0 3-1.34 3-3V6.5c0-1.66-1.34-3-3-3zm-1.5 1c.83 0 1.5.67 1.5 1.5S18.33 7 17.5 7 16 6.33 16 5.5s.67-1.5 1.5-1.5z'/%3E%3C/svg%3E");
-        }
-
-        .icon-paper-plane {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M2.01 21L23 12 2.01 3 2 10l15 2-15 2z'/%3E%3C/svg%3E");
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 12px;
-            }
-            .container {
-                padding: 24px;
-                border-radius: 10px;
-            }
-            h2 {
-                font-size: 26px;
-            }
-            .theme-toggle {
-                top: 12px;
-                right: 12px;
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
+        .btn-submit.loading span.btn-text {
+            display: none;
         }
     </style>
 </head>
-<body class="font-sans">
-    <div class="theme-toggle" id="themeToggle">💡</div>
+<body>
+    <button class="theme-toggle-btn" id="themeBtn" title="Toggle Theme">💡</button>
 
     <div class="container">
-        <div class="logo">
-            <div class="wifi-icon">📶</div>
+        <!-- Hero Section -->
+        <div class="hero">
+            <div class="wifi-badge">📶</div>
+            <h1>Get High-Speed Wi-Fi</h1>
+            <p>Select your package and pay instantly via bKash or Nagad. Your Wi-Fi will be activated in seconds.</p>
         </div>
-        <h2>Register for Hotspot Access</h2>
 
-        {% if message %}
-            <p class="message {{ message_type }}">{{ message }}</p>
-        {% endif %}
+        <!-- Checkout Form Card -->
+        <div class="card">
+            {% if message %}
+                <div class="alert-error">{{ message }}</div>
+            {% endif %}
 
-        <form action="/payment/checkout" method="post" id="registerForm">
-            <div>
-                <label for="phone"><span class="icon icon-phone"></span>Phone Number</label>
-                <input type="tel" id="phone" name="phone" placeholder="e.g., 01712345678" pattern="[0-9]{11}" maxlength="11" required>
+            <form action="/payment/checkout" method="post" id="checkoutForm">
+                <!-- Phone Number -->
+                <div class="form-group">
+                    <label class="form-label" for="phone">Phone Number</label>
+                    <div class="input-wrap">
+                        <span class="input-icon">📱</span>
+                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="017XXXXXXXX" pattern="01[3-9][0-9]{8}" maxlength="11" required autocomplete="tel">
+                    </div>
+                </div>
+
+                <!-- Hidden Input bound to selected card -->
+                <input type="hidden" name="package" id="selectedPackage" value="15_days_40_tk">
+
+                <!-- Package Selection Cards -->
+                <div class="form-group" style="margin-top: 14px;">
+                    <label class="form-label">Select Package</label>
+                    <div class="packages-grid">
+                        <!-- Card 1: 15 Days - 40 TK -->
+                        <div class="pkg-card active" id="card_15" onclick="selectPkg('15_days_40_tk', 40, 'card_15')">
+                            <span class="pkg-badge">Popular</span>
+                            <span class="pkg-duration">15 Days Pass</span>
+                            <span class="pkg-price">40 <span>BDT</span></span>
+                            <span class="pkg-speed">2 Mbps Unlimited</span>
+                        </div>
+
+                        <!-- Card 2: 30 Days - 100 TK -->
+                        <div class="pkg-card" id="card_30" onclick="selectPkg('30_days_100_tk', 100, 'card_30')">
+                            <span class="pkg-badge" style="background:#3b82f6;">Best Value</span>
+                            <span class="pkg-duration">30 Days Pass</span>
+                            <span class="pkg-price">100 <span>BDT</span></span>
+                            <span class="pkg-speed">5 Mbps High Speed</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Automated Feature Notice -->
+                <div class="payment-perks">
+                    <span>⚡</span>
+                    <span><strong>Instant Automated Activation:</strong> Account is automatically created on router immediately upon bKash / Nagad confirmation.</span>
+                </div>
+
+                <!-- Dynamic Submit Button adapting price -->
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <span class="btn-text" id="btnLabel">💳 Pay 40 BDT & Connect Now</span>
+                    <span class="spinner"></span>
+                </button>
+            </form>
+
+            <div class="return-link">
+                Already have a voucher? <a href="http://192.168.10.1/login">Login to Wi-Fi</a>
             </div>
-
-            <div>
-                <label for="package"><span class="icon icon-box"></span>Select Package</label>
-                <select id="package" name="package" required>
-                    <option value="" disabled selected>-- Select a package --</option>
-                    <option value="15_days_40_tk">15 days - 40 TK</option>
-                    <option value="30_days_100_tk">30 days - 100 TK</option>
-                </select>
-            </div>
-
-            <div class="payment-badge" style="margin: 15px 0; padding: 10px; background: rgba(0, 123, 255, 0.08); border-radius: 6px; font-size: 13px; text-align: center; color: var(--text-color);">
-                ⚡ <strong>Instant Activation:</strong> Pay with bKash, Nagad, Rocket, or Upay and your Wi-Fi will be enabled immediately!
-            </div>
-
-            <button type="submit" id="submitButton" style="background: #e2136e; border: none;">
-                <span class="icon icon-paper-plane"></span>
-                <span>Pay & Connect Instantly</span>
-                <span class="spinner"></span>
-            </button>
-        </form>
-
-        <div class="footer-copyright">
-            Copyright &copy; mrun1corn
         </div>
     </div>
 
-    <script type="text/javascript">
-        const themeToggle = document.getElementById('themeToggle');
-        const bodyElement = document.body;
-        const form = document.getElementById('registerForm');
-        const submitButton = document.getElementById('submitButton');
-
-        // Theme toggle logic
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            bodyElement.classList.add(savedTheme);
-            themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '💡';
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            bodyElement.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark-mode');
-            themeToggle.textContent = '☀️';
+    <script>
+        // Interactive Package Selector adapting price dynamically
+        function selectPkg(pkgId, price, cardId) {
+            document.getElementById('selectedPackage').value = pkgId;
+            document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('active'));
+            document.getElementById(cardId).classList.add('active');
+            // Update button label dynamically to reflect exact selected package amount
+            document.getElementById('btnLabel').innerText = `💳 Pay ${price} BDT & Connect Now`;
         }
 
-        themeToggle.addEventListener('click', () => {
-            if (bodyElement.classList.contains('dark-mode')) {
-                bodyElement.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light-mode');
-                themeToggle.textContent = '💡';
-            } else {
-                bodyElement.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark-mode');
-                themeToggle.textContent = '☀️';
-            }
+        // Form Submit Loading State
+        const form = document.getElementById('checkoutForm');
+        const submitBtn = document.getElementById('submitBtn');
+        form.addEventListener('submit', () => {
+            submitBtn.classList.add('loading');
+            submitBtn.disabled = true;
         });
 
-        // Form submission loading state
-        form.addEventListener('submit', () => {
-            submitButton.disabled = true;
-            submitButton.classList.add('loading');
+        // Theme Toggle
+        const themeBtn = document.getElementById('themeBtn');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light-mode') {
+            document.body.classList.add('light-mode');
+            themeBtn.innerText = '🌙';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeBtn.innerText = isLight ? '🌙' : '💡';
+            localStorage.setItem('theme', isLight ? 'light-mode' : 'dark-mode');
         });
     </script>
 </body>

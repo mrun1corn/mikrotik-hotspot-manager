@@ -1,290 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>internet hotspot > logout</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta http-equiv="pragma" content="no-cache" />
-<meta http-equiv="expires" content="-1" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<style type="text/css">
-    :root {
-        --bg-color: #f0f2f5;
-        --text-color: #333;
-        --card-bg: #fff;
-        --border-color: #ddd;
-        --primary-color: #007bff;
-        --primary-hover: #0056b3;
-        --success-color: #28a745;
-        --success-hover: #218838;
-        --error-color: #dc3545;
-        --input-bg: #fdfbfb;
-        --input-border: #bbb;
-        --link-color: #007bff;
-        --link-hover: #0056b3;
-    }
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta http-equiv="expires" content="-1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Hotspot Portal > Logged Out</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style type="text/css">
+        :root {
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --panel-bg: #1e293b;
+            --panel-inner: #0f172a;
+            --card-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.35);
+            --bkash-pink: #e2136e;
+            --bkash-glow: rgba(226, 19, 110, 0.35);
+        }
 
-    body.dark-mode {
-        --bg-color: #2c2c2c;
-        --text-color: #e0e0e0;
-        --card-bg: #3c3c3c;
-        --border-color: #555;
-        --primary-color: #66aaff;
-        --primary-hover: #4488ee;
-        --success-color: #4CAF50;
-        --success-hover: #45a049;
-        --error-color: #ff6b6b;
-        --input-bg: #4a4a4a;
-        --input-border: #777;
-        --link-color: #66aaff;
-        --link-hover: #4488ee;
-    }
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --panel-bg: #ffffff;
+            --panel-inner: #f8fafc;
+            --card-border: rgba(0, 0, 0, 0.08);
+            --primary: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.2);
+        }
 
-    body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin: 0;
-        padding: 20px;
-        background-color: var(--bg-color);
-        color: var(--text-color);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        transition: background-color 0.3s, color 0.3s;
-        box-sizing: border-box;
-    }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-    .container {
-        background-color: var(--card-bg);
-        border-radius: 10px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        padding: 30px;
-        max-width: 400px;
-        width: 100%;
-        text-align: center;
-        transition: background-color 0.3s, box-shadow 0.3s;
-    }
-
-    .logo {
-        margin-bottom: 20px;
-    }
-
-    .logo img {
-        max-width: 150px;
-        height: auto;
-    }
-
-    h1 {
-        color: var(--primary-color);
-        margin-bottom: 25px;
-        font-size: 24px;
-    }
-
-    form {
-        margin-top: 20px;
-    }
-
-    input[type="text"],
-    input[type="password"],
-    input[type="submit"] {
-        width: calc(100% - 20px);
-        padding: 12px;
-        margin-bottom: 15px;
-        border: 1px solid var(--input-border);
-        border-radius: 5px;
-        font-size: 16px;
-        background-color: var(--input-bg);
-        color: var(--text-color);
-        transition: border-color 0.3s, background-color 0.3s, color 0.3s;
-    }
-
-    input[type="submit"] {
-        background-color: var(--primary-color);
-        color: white;
-        cursor: pointer;
-        font-weight: bold;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-
-    input[type="submit"]:hover {
-        background-color: var(--primary-hover);
-        transform: translateY(-2px);
-    }
-
-    .buy-package-btn {
-        display: inline-block;
-        padding: 12px 25px;
-        background-color: var(--success-color);
-        color: white;
-        text-decoration: none;
-        border-radius: 5px;
-        font-weight: bold;
-        margin-top: 20px;
-        transition: background-color 0.3s, transform 0.2s;
-    }
-
-    .buy-package-btn:hover {
-        background-color: var(--success-hover);
-        transform: translateY(-2px);
-    }
-
-    .notice {
-        font-size: 12px;
-        color: var(--text-color);
-        margin-top: 20px;
-    }
-
-    .notice a {
-        color: var(--link-color);
-        text-decoration: none;
-        transition: color 0.3s;
-    }
-
-    .notice a:hover {
-        color: var(--link-hover);
-        text-decoration: underline;
-    }
-
-    .error-message {
-        color: var(--error-color);
-        font-weight: bold;
-        margin-top: 15px;
-    }
-
-    .theme-toggle {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: var(--card-bg);
-        border: 1px solid var(--border-color);
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        font-size: 20px;
-        color: var(--text-color);
-        transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .theme-toggle:hover {
-        transform: scale(1.1);
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 600px) {
         body {
-            padding: 10px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.18) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(148, 163, 184, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
         }
+
         .container {
-            padding: 20px;
-            border-radius: 5px;
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .theme-toggle {
-            top: 10px;
-            right: 10px;
-            width: 35px;
-            height: 35px;
-            font-size: 18px;
-        }
-    }
 
-    /* Logout specific styles */
-    .logout-info {
-        margin-top: 20px;
-        font-size: 16px;
-    }
-    .logout-info table {
-        width: 100%;
-        margin-top: 15px;
-        border-collapse: collapse;
-        border: 1px solid var(--border-color);
-    }
-    .logout-info th, .logout-info td {
-        padding: 10px;
-        border: 1px solid var(--border-color);
-        text-align: left;
-    }
-    .logout-info td:first-child {
-        font-weight: bold;
-    }
-</style>
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4px 0;
+        }
+
+        .icon-badge {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #64748b, #475569);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            font-size: 30px;
+        }
+
+        .hero h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 4px;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .card {
+            background: var(--panel-bg);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-item {
+            background: var(--panel-inner);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-align: left;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: #ffffff;
+            font-size: 15px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 6px 20px var(--primary-glow);
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 13px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .theme-toggle-btn {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--panel-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 100;
+        }
+    </style>
 </head>
-
 <body>
-<div class="theme-toggle" id="themeToggle">💡</div>
+    <button class="theme-toggle-btn" id="themeBtn" title="Toggle Theme">💡</button>
 
-<script language="JavaScript">
-<!--
-    function openLogin() {
-	if (window.name != 'hotspot_logout') return true;
-	open('$(link-login)', '_blank', '');
-	window.close();
-	return false;
-    }
-//-->
-</script>
+    <div class="container">
+        <div class="hero">
+            <div class="icon-badge">👋</div>
+            <h1>Logged Out</h1>
+            <p>You have successfully disconnected from the hotspot session.</p>
+        </div>
 
-<div class="container">
-    <div class="logo">
-        <div class="wifi-icon">📶</div>
+        <div class="card">
+            <!-- Final Session Stats -->
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-label">User / IP</span>
+                    <span class="stat-value">$(username)</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Uptime</span>
+                    <span class="stat-value">$(uptime)</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Downloaded</span>
+                    <span class="stat-value">$(bytes-out-nice)</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Uploaded</span>
+                    <span class="stat-value">$(bytes-in-nice)</span>
+                </div>
+            </div>
+
+            <div class="actions-group">
+                <a href="$(link-login)" class="btn-primary">
+                    <span>⚡</span>
+                    <span>Log In Again</span>
+                </a>
+
+                <a href="https://mikrotik-hotspot-manager-one.vercel.app/register" class="btn-secondary">
+                    <span>💳</span>
+                    <span>Buy New Wi-Fi Package</span>
+                </a>
+            </div>
+        </div>
     </div>
-    <h1>Hotspot Logout</h1>
 
-    <div class="logout-info">
-        <b>You have just logged out</b> <br><br>
-        <table>  
-            <tr><td>User Name</td><td>$(username)</td></tr>
-            <tr><td>IP Address</td><td>$(ip)</td></tr>
-            <tr><td>MAC Address</td><td>$(mac)</td></tr>
-            <tr><td>Session Time</td><td>$(uptime)</td></tr>
-            $(if session-time-left)
-            <tr><td>Time Left</td><td>$(session-time-left)</td></tr>
-            $(endif)
-            <tr><td>Bytes Up/Down</td><td>$(bytes-in-nice) / $(bytes-out-nice)</td></tr>
-        </table>
-        <br>
-        <form action="$(link-login)" name="login" onSubmit="return openLogin()">
-            <input type="submit" value="Log In" />
-        </form>
-    </div>
-
-    <div class="footer-copyright">
-        Copyright by mrun1corn
-    </div>
-</div>
-
-<script type="text/javascript">
-    // Theme Toggle Logic
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-
-    // Check for saved theme preference
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-        body.classList.add(savedTheme);
-        themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '💡';
-    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        // Default to dark mode if OS preference is dark
-        body.classList.add('dark-mode');
-        localStorage.setItem('theme', 'dark-mode');
-        themeToggle.textContent = '☀️';
-    }
-
-    themeToggle.addEventListener('click', () => {
-        if (body.classList.contains('dark-mode')) {
-            body.classList.remove('dark-mode');
-            localStorage.setItem('theme', 'light-mode');
-            themeToggle.textContent = '💡';
-        } else {
-            body.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark-mode');
-            themeToggle.textContent = '☀️';
+    <script type="text/javascript">
+        // Theme Toggle
+        const themeBtn = document.getElementById('themeBtn');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light-mode') {
+            document.body.classList.add('light-mode');
+            themeBtn.innerText = '🌙';
         }
-    });
-</script>
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeBtn.innerText = isLight ? '🌙' : '💡';
+            localStorage.setItem('theme', isLight ? 'light-mode' : 'dark-mode');
+        });
+    </script>
 </body>
 </html>
