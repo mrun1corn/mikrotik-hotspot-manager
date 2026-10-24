@@ -2,407 +2,654 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registration Successful!</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wi-Fi Access Voucher - Registration Complete</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Variables for Theme */
         :root {
-            --bg-color: #f4f7fa;
-            --text-color: #2d3748;
-            --card-bg: #ffffff;
-            --border-color: #e2e8f0;
-            --primary-color: #3b82f6;
-            --primary-hover: #2563eb;
-            --success-color: #22c55e;
-            --success-hover: #16a34a;
-            --error-color: #ef4444;
-            --input-bg: #f9fafb;
-            --input-border: #d1d5db;
-            --link-color: #3b82f6;
-            --link-hover: #2563eb;
-            --gradient-start-light: #dbeafe;
-            --gradient-end-light: #bfdbfe;
-            --gradient-start-dark: #1f2937;
-            --gradient-end-dark: #374151;
+            --bg-color: #0f172a;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.1);
+            --ticket-bg: #1e293b;
+            --ticket-inner: #0f172a;
+            --primary: #3b82f6;
+            --primary-glow: rgba(59, 130, 246, 0.35);
+            --success: #10b981;
+            --success-glow: rgba(16, 185, 129, 0.3);
+            --accent: #e2136e; /* bKash pink accent */
         }
 
-        body.dark-mode {
-            --bg-color: #1f2937;
-            --text-color: #d1d5db;
-            --card-bg: #374151;
-            --border-color: #4b5563;
-            --primary-color: #60a5fa;
-            --primary-hover: #3b82f6;
-            --success-color: #4ade80;
-            --success-hover: #22c55e;
-            --error-color: #f87171;
-            --input-bg: #4b5563;
-            --input-border: #6b7280;
-            --link-color: #60a5fa;
-            --link-hover: #3b82f6;
+        body.light-mode {
+            --bg-color: #f1f5f9;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --ticket-bg: #ffffff;
+            --ticket-inner: #f8fafc;
+            --primary: #2563eb;
+            --primary-glow: rgba(37, 99, 235, 0.2);
+            --success: #059669;
+            --success-glow: rgba(5, 150, 105, 0.2);
         }
 
-        /* General Body Styling */
-        body {
-            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
-            background-image: linear-gradient(135deg, var(--gradient-start-light), var(--gradient-end-light));
-            color: var(--text-color);
+            color: var(--text-main);
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            transition: background-color 0.3s ease, color 0.3s ease, background-image 0.3s ease;
-            box-sizing: border-box;
+            padding: 16px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
         }
 
-        body.dark-mode {
-            background-image: linear-gradient(135deg, var(--gradient-start-dark), var(--gradient-end-dark));
-        }
-
-        /* Container Styling */
         .container {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
-            padding: 32px;
-            max-width: 480px;
             width: 100%;
-            text-align: center;
-            transition: background-color 0.3s ease, box-shadow 0.3s ease;
-            animation: fadeIn 0.5s ease-out;
-            border: 1px solid var(--border-color); /* Added to visually contain button */
+            max-width: 440px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Logo/Icon Styling */
-        .logo {
-            margin-bottom: 24px;
+        /* --- Success Hero Header --- */
+        .hero {
+            text-align: center;
+            padding: 10px 0 6px;
         }
 
-        .wifi-icon {
-            font-size: 64px;
-            color: var(--primary-color);
-            margin-bottom: 12px;
-            display: inline-block;
-            animation: pulse 2s infinite ease-in-out;
+        .success-badge {
+            width: 72px;
+            height: 72px;
+            background: var(--success);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            box-shadow: 0 0 30px var(--success-glow);
+            animation: bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
+        @keyframes bounceIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.15); opacity: 1; }
+            100% { transform: scale(1); }
         }
 
-        /* Heading Styling */
-        h2 {
-            color: var(--primary-color);
-            margin-bottom: 28px;
-            font-size: 30px;
-            font-weight: 700;
-            letter-spacing: -0.025em;
+        .success-badge svg {
+            width: 38px;
+            height: 38px;
+            stroke: #ffffff;
+            stroke-width: 3;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+            stroke-dasharray: 50;
+            stroke-dashoffset: 50;
+            animation: checkDraw 0.6s ease-out 0.3s forwards;
         }
 
-        p {
-            font-size: 16px;
-            line-height: 1.6;
-            margin-bottom: 16px;
-            color: var(--text-color);
+        @keyframes checkDraw {
+            to { stroke-dashoffset: 0; }
         }
 
-        /* Credentials Section */
-        .credentials {
-            background-color: var(--input-bg);
-            padding: 20px;
-            border-radius: 8px;
-            margin: 24px 0;
-            border: 1px solid var(--input-border);
-            text-align: left;
+        .hero h1 {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+            color: var(--text-main);
+        }
+
+        .hero p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* --- Digital Ticket Pass Card --- */
+        .ticket-card {
+            background: var(--ticket-bg);
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
             position: relative;
         }
 
-        .credentials p {
-            margin: 0 0 12px;
-            font-size: 15px;
+        .ticket-header {
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px dashed var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ticket-brand {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary);
         }
 
-        .credentials strong {
+        .live-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
             font-weight: 600;
-            color: var(--text-color);
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
-        .copy-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 4px;
-            color: var(--primary-color);
-            font-size: 14px;
-            transition: color 0.3s ease;
-            position: absolute;
-            right: 12px;
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--success);
+            animation: pulseDot 1.5s infinite;
         }
 
-        .copy-btn:hover {
-            color: var(--primary-hover);
+        @keyframes pulseDot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
         }
 
-        /* Download Button */
-        .download-btn {
+        .ticket-body {
+            padding: 20px;
             display: flex;
-            background-color: var(--primary-color);
-            color: white;
-            padding: 14px 24px;
-            border: none;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 16px;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* Credential Boxes */
+        .credential-field {
+            background: var(--ticket-inner);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: border-color 0.2s;
+        }
+
+        .credential-field:hover {
+            border-color: var(--primary);
+        }
+
+        .field-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .field-label {
+            font-size: 11px;
             font-weight: 600;
-            margin-top: 20px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+        }
+
+        .field-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 19px;
+            font-weight: 700;
+            color: var(--text-main);
+            letter-spacing: 0.04em;
+        }
+
+        .action-icon-btn {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .action-icon-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .action-icon-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* QR Code Card Section */
+        .qr-section {
+            background: var(--ticket-inner);
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            padding: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .qr-canvas-wrap {
+            background: #ffffff;
+            padding: 6px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .qr-canvas-wrap canvas {
+            display: block;
+        }
+
+        .qr-text {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: left;
+        }
+
+        .qr-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .qr-desc {
+            font-size: 11px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        /* --- Quick Action Buttons --- */
+        .actions-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 4px;
+        }
+
+        .btn-connect {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 6px 20px var(--success-glow);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border: none;
+            width: 100%;
+        }
+
+        .btn-connect:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--success-glow);
+        }
+
+        .btn-connect:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-secondary {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 13px;
+            font-weight: 600;
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            width: calc(100% - 48px); /* Adjusted to fit within container padding */
-            margin-left: auto;
-            margin-right: auto;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
 
-        .download-btn:hover {
-            background-color: var(--primary-hover);
-            transform: translateY(-2px);
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        .download-btn:disabled {
-            background-color: #94a3b8;
-            cursor: not-allowed;
-            transform: none;
+        /* --- How to connect pills --- */
+        .instructions {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            padding: 14px 16px;
+            border: 1px solid var(--card-border);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            text-align: left;
         }
 
-        .spinner {
-            display: none;
-            width: 16px;
-            height: 16px;
-            border: 2px solid #ffffff;
-            border-top: 2px solid transparent;
+        .inst-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 2px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .step-num {
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            color: #fff;
             border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 1px;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .download-btn.loading .spinner {
-            display: inline-block;
-        }
-
-        /* Theme Toggle Button */
-        .theme-toggle {
+        .theme-toggle-btn {
             position: fixed;
             top: 16px;
             right: 16px;
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
-            width: 44px;
-            height: 44px;
+            background: var(--ticket-bg);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            font-size: 22px;
-            color: var(--text-color);
-            transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
+            z-index: 100;
         }
 
-        .theme-toggle:hover {
-            transform: scale(1.1);
-        }
-
-        /* Footer Copyright */
-        .footer-copyright {
-            margin-top: 28px;
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #1e293b;
+            color: #ffffff;
+            border: 1px solid #3b82f6;
+            padding: 10px 18px;
+            border-radius: 20px;
             font-size: 13px;
-            color: var(--text-color);
-            opacity: 0.7;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Icon Styling (Using SVG as mask-image) */
-        .icon {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            background-color: var(--text-color);
-            -webkit-mask-size: contain;
-            mask-size: contain;
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-position: center;
-            mask-position: center;
-        }
-
-        .icon-user {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E");
-        }
-
-        .icon-key {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H14v4h4v-4h2V10h-7.35zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12.65 10C11.83 7.67 9.61 6 7 6c-3.31 0-6 2.69-6 6s2.69 6 6 6c2.61 0 4.83-1.67 5.65-4H14v4h4v-4h2V10h-7.35zM7 14c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z'/%3E%3C/svg%3E");
-        }
-
-        .icon-download {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z'/%3E%3C/svg%3E");
-        }
-
-        .icon-copy {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'/%3E%3C/svg%3E");
-        }
-
-        .icon-check {
-            -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
-            mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z'/%3E%3C/svg%3E");
-        }
-
-        /* Responsive Adjustments */
-        @media (max-width: 600px) {
-            body {
-                padding: 12px;
-            }
-            .container {
-                padding: 24px;
-                border-radius: 10px;
-            }
-            h2 {
-                font-size: 26px;
-            }
-            .theme-toggle {
-                top: 12px;
-                right: 12px;
-                width: 40px;
-                height: 40px;
-                font-size: 20px;
-            }
-            .download-btn {
-                width: calc(100% - 32px); /* Adjusted for smaller container padding */
-            }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="theme-toggle" id="themeToggle">💡</div>
+    <button class="theme-toggle-btn" id="themeBtn" title="Toggle Theme">💡</button>
 
     <div class="container">
-        <div class="logo">
-            <div class="wifi-icon">📶</div>
-        </div>
-        <h2>Registration Successful!</h2>
-        <p>Your hotspot account has been created. Please save your credentials:</p>
-        <div class="credentials">
-            <p>
-                <strong><span class="icon icon-user"></span>Username:</strong> 
-                <span id="username">{{ username }}</span>
-                <button class="copy-btn" onclick="copyToClipboard('username', this)" title="Copy Username">
-                    <span class="icon icon-copy"></span>
-                </button>
-            </p>
-            <p>
-                <strong><span class="icon icon-key"></span>Password:</strong> 
-                <span id="password">{{ password }}</span>
-                <button class="copy-btn" onclick="copyToClipboard('password', this)" title="Copy Password">
-                    <span class="icon icon-copy"></span>
-                </button>
-            </p>
-        </div>
-        <p>Download an image of your credentials for safekeeping:</p>
-        <a href="{{ download_link }}" class="download-btn" id="downloadButton">
-            <span class="icon icon-download"></span>
-            <span>Download Credentials</span>
-            <span class="spinner"></span>
-        </a>
-        {% if auto_approved %}
-            <div style="margin-top: 20px; padding: 12px; background: rgba(40, 167, 69, 0.12); border: 1px solid #28a745; border-radius: 6px; color: #28a745; font-weight: bold; font-size: 14px;">
-                ✅ Payment Verified! Your Wi-Fi account is active right now.
+        <!-- Hero Confirmation -->
+        <div class="hero">
+            <div class="success-badge">
+                <svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
             </div>
-            <a href="http://wifi.local/login" class="download-btn" style="background-color: #28a745; margin-top: 15px; text-decoration: none;">
-                <span class="icon icon-check"></span>
+            <h1>Payment Verified!</h1>
+            <p>Your Wi-Fi package is now activated. Use the voucher credentials below to get online.</p>
+        </div>
+
+        <!-- Digital Ticket Card -->
+        <div class="ticket-card">
+            <div class="ticket-header">
+                <div class="ticket-brand">
+                    <span>📶</span> Hotspot Voucher Pass
+                </div>
+                <div class="live-status">
+                    <span class="live-dot"></span> Active Now
+                </div>
+            </div>
+
+            <div class="ticket-body">
+                <!-- Username -->
+                <div class="credential-field">
+                    <div class="field-info">
+                        <span class="field-label">Username / Phone</span>
+                        <span class="field-value" id="valUsername">{{ username }}</span>
+                    </div>
+                    <button class="action-icon-btn" onclick="copyValue('valUsername', 'Username')" title="Copy Username">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Password -->
+                <div class="credential-field">
+                    <div class="field-info">
+                        <span class="field-label">Password / PIN</span>
+                        <span class="field-value" id="valPassword">{{ password }}</span>
+                    </div>
+                    <button class="action-icon-btn" onclick="copyValue('valPassword', 'Password')" title="Copy Password">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+
+                <!-- On-Screen QR Code for instant second-device or camera connection -->
+                <div class="qr-section">
+                    <div class="qr-canvas-wrap">
+                        <canvas id="qrCanvas" width="80" height="80"></canvas>
+                    </div>
+                    <div class="qr-text">
+                        <span class="qr-title">Instant Scan Pass</span>
+                        <span class="qr-desc">Scan with another phone or laptop camera to copy credentials instantly.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Primary Connect Actions -->
+        <div class="actions-group">
+            <!-- 1-Click Instant Login (posts to router login handler) -->
+            <button class="btn-connect" onclick="autoLoginRouter()">
+                <span>🚀</span>
                 <span>Connect to Wi-Fi Now</span>
-            </a>
-        {% else %}
-            <p style="margin-top: 24px; font-size: 14px; opacity: 0.7;">
-                Please wait for admin approval to use these credentials on the hotspot.
-            </p>
-        {% endif %}
-        <div class="footer-copyright">
-            Copyright &copy; mrun1corn
+            </button>
+
+            <div class="btn-secondary-row">
+                <button class="btn-secondary" onclick="copyBoth()">
+                    <span>📋</span>
+                    <span>Copy Both</span>
+                </button>
+                <a href="{{ download_link }}" class="btn-secondary" id="saveImageBtn">
+                    <span>🖼️</span>
+                    <span>Save Voucher</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- 3 Simple Steps Guide -->
+        <div class="instructions">
+            <span class="inst-title">How to browse:</span>
+            <div class="step-item">
+                <span class="step-num">1</span>
+                <span>Click <strong>Connect to Wi-Fi Now</strong> to log in automatically.</span>
+            </div>
+            <div class="step-item">
+                <span class="step-num">2</span>
+                <span>If prompted on the Wi-Fi popup, paste your <strong>Username</strong> and <strong>Password</strong>.</span>
+            </div>
+            <div class="step-item">
+                <span class="step-num">3</span>
+                <span>Enjoy fast, uninterrupted internet access!</span>
+            </div>
         </div>
     </div>
 
-    <script type="text/javascript">
-        const themeToggle = document.getElementById('themeToggle');
-        const bodyElement = document.body;
-        const downloadButton = document.getElementById('downloadButton');
+    <!-- Hidden Form for MikroTik Auto-Login -->
+    <form id="hotspotLoginForm" action="http://192.168.10.1/login" method="post" style="display:none;">
+        <input type="hidden" name="username" value="{{ username }}">
+        <input type="hidden" name="password" value="{{ password }}">
+        <input type="hidden" name="dst" value="https://google.com">
+    </form>
 
-        // Theme toggle logic
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            bodyElement.classList.add(savedTheme);
-            themeToggle.textContent = savedTheme === 'dark-mode' ? '☀️' : '💡';
-        } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-            bodyElement.classList.add('dark-mode');
-            localStorage.setItem('theme', 'dark-mode');
-            themeToggle.textContent = '☀️';
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span>✅</span>
+        <span id="toastMsg">Copied!</span>
+    </div>
+
+    <!-- QR Code Generator script -->
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+    <script>
+        // Generate QR code on canvas
+        try {
+            new QRious({
+                element: document.getElementById('qrCanvas'),
+                value: 'USER:{{ username }};PASS:{{ password }}',
+                size: 80,
+                background: 'white',
+                foreground: 'black'
+            });
+        } catch(e) {
+            console.log('QR code display fallback');
         }
 
-        themeToggle.addEventListener('click', () => {
-            if (bodyElement.classList.contains('dark-mode')) {
-                bodyElement.classList.remove('dark-mode');
-                localStorage.setItem('theme', 'light-mode');
-                themeToggle.textContent = '💡';
-            } else {
-                bodyElement.classList.add('dark-mode');
-                localStorage.setItem('theme', 'dark-mode');
-                themeToggle.textContent = '☀️';
+        // Auto-login to MikroTik router handler
+        function autoLoginRouter() {
+            showToast('Logging into Wi-Fi router...');
+            // Attempt standard router captive portal submission
+            try {
+                // Try form submit to 192.168.10.1
+                const form = document.getElementById('hotspotLoginForm');
+                form.submit();
+            } catch(e) {
+                // Fallback to GET redirect
+                window.location.href = "http://192.168.10.1/login?username={{ username }}&password={{ password }}";
             }
-        });
+        }
 
-        // Download button loading state
-        downloadButton.addEventListener('click', () => {
-            downloadButton.classList.add('loading');
-            downloadButton.disabled = true;
-            setTimeout(() => {
-                downloadButton.classList.remove('loading');
-                downloadButton.disabled = false;
-            }, 2000); // Simulate download processing
-        });
-
-        // Copy to clipboard function
-        function copyToClipboard(elementId, button) {
-            const text = document.getElementById(elementId).textContent;
-            navigator.clipboard.writeText(text).then(() => {
-                button.innerHTML = '<span class="icon icon-check"></span>';
-                setTimeout(() => {
-                    button.innerHTML = '<span class="icon icon-copy"></span>';
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy:', err);
+        // Copy single value
+        function copyValue(id, name) {
+            const val = document.getElementById(id).innerText.trim();
+            navigator.clipboard.writeText(val).then(() => {
+                showToast(`${name} copied to clipboard!`);
+            }).catch(() => {
+                fallbackCopy(val, name);
             });
         }
+
+        // Copy both credentials together
+        function copyBoth() {
+            const u = document.getElementById('valUsername').innerText.trim();
+            const p = document.getElementById('valPassword').innerText.trim();
+            const combined = `Hotspot Credentials\nUsername: ${u}\nPassword: ${p}`;
+            navigator.clipboard.writeText(combined).then(() => {
+                showToast('Username & Password copied!');
+            }).catch(() => {
+                fallbackCopy(combined, 'Credentials');
+            });
+        }
+
+        function fallbackCopy(text, name) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast(`${name} copied!`);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2200);
+        }
+
+        // Theme Toggle
+        const themeBtn = document.getElementById('themeBtn');
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light-mode') {
+            document.body.classList.add('light-mode');
+            themeBtn.innerText = '🌙';
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            themeBtn.innerText = isLight ? '🌙' : '💡';
+            localStorage.setItem('theme', isLight ? 'light-mode' : 'dark-mode');
+        });
     </script>
 </body>
 </html>
